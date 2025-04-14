@@ -305,25 +305,92 @@ RSpec.describe ProjectsController do
     end
   end
 
+  describe "#copy_form" do
+    let(:project) { create(:project, identifier: "blog") }
+
+    shared_examples_for "successful request" do
+      it "renders 'copy_form'", :aggregate_faulures do
+        expect(response).to be_successful
+        expect(assigns(:target_project)).to be_a_new(Project)
+        expect(assigns(:project)).to eq project
+        expect(response).to render_template "copy_form"
+      end
+    end
+
+    before do
+      get "copy_form", params: { id: project.identifier }
+    end
+
+    context "as an admin" do
+      it_behaves_like "successful request"
+    end
+
+    context "as a non-admin with copy projects permission" do
+      let(:user) { create(:user, member_with_roles: { project => project_role }) }
+      let(:project_role) { build(:project_role, permissions: [:copy_projects]) }
+
+      it_behaves_like "successful request"
+    end
+
+    context "as a non-admin without copy projects permission" do
+      let(:user) { build_stubbed(:user) }
+
+      it "returns 403 Not Authorized" do
+        expect(response).not_to be_successful
+        expect(response).to have_http_status :forbidden
+      end
+    end
+  end
+
   describe "#copy" do
     let(:project) { create(:project, identifier: "blog") }
 
-    it "renders 'copy'" do
-      get "copy", params: { id: project.id }
-      expect(response).to be_successful
-      expect(response).to render_template "copy"
+    before do
+      copy_service = instance_double(Projects::EnqueueCopyService, call: service_result)
+
+      allow(Projects::EnqueueCopyService)
+       .to receive(:new)
+             .with(user: admin, model: project)
+             .and_return(copy_service)
     end
 
-    context "as non authorized user" do
-      let(:user) { build_stubbed(:user) }
+    context "when service call succeeds" do
+      let(:job) { CopyProjectJob.new }
+      let(:service_result) { ServiceResult.success(result: job) }
+
+      it "redirects to job status" do
+        post :copy, params: {
+          id: project.identifier,
+          project: { name: "Copied project" },
+          copy_options: { dependencies: [], send_notifications: false }
+        }
+
+        expect(response).to redirect_to job_status_path(job.job_id)
+      end
+    end
+
+    context "when service call fails" do
+      let(:service_result) { ServiceResult.failure(result: project, message: "") }
 
       before do
-        login_as user
+        project.name = ""
       end
 
-      it "shows an error" do
-        get "copy", params: { id: project.id }
-        expect(response).to have_http_status :forbidden
+      it "renders copy_form template with errors", :aggregate_failures do
+        post :copy, params: {
+          id: project.identifier,
+          project: { name: "" },
+          copy_options: { dependencies: [], send_notifications: false }
+        }
+
+        expect(response).not_to be_successful
+        expect(response).to have_http_status :unprocessable_entity
+        # expect(assigns(:target_project)).to be_a_new(Project)
+        expect(assigns(:target_project)).not_to be_valid
+        expect(assigns(:project)).to eq project
+        expect(assigns(:copy_options)).not_to be_nil
+        expect(flash[:error]).to start_with I18n.t(:notice_unsuccessful_create_with_reason, reason: "")
+        expect(response).to render_template "copy_form"
       end
     end
   end

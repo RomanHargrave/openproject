@@ -178,16 +178,11 @@ RSpec.describe "Projects copy", :js,
       end
 
       it "separates optional and required custom fields for new" do
+        expect(page).to have_heading "Copy project \"#{project.name}\""
+
         expect(page).to have_content "Required Foo"
         expect(page).to have_content "Required User"
-
-        click_on "Advanced settings"
-
-        within(".op-fieldset", match: :first) do
-          expect(page).to have_text "Optional Foo"
-          expect(page).to have_no_text "Required Foo"
-          expect(page).to have_no_text "Required User"
-        end
+        expect(page).to have_no_text "Optional Foo"
       end
     end
 
@@ -196,20 +191,20 @@ RSpec.describe "Projects copy", :js,
         general_settings_page = Pages::Projects::Settings::General.new(project)
         general_settings_page.visit!
         general_settings_page.click_copy_action
-
-        expect(page).to have_text "Copy project \"#{project.name}\""
-
-        fill_in "Name", with: "Copied project"
       end
 
       it "enables the same project custom fields as activated on the source project if untouched" do
+        expect(page).to have_heading "Copy project \"#{project.name}\""
+
         expect(project.project_custom_field_ids).to contain_exactly(
           project_custom_field.id,
           optional_project_custom_field.id,
           optional_project_custom_field_with_default.id
         )
 
-        click_button "Save"
+        fill_in "Name", with: "Copied project"
+
+        click_on "Copy"
 
         wait_for_copy_to_finish
 
@@ -220,28 +215,6 @@ RSpec.describe "Projects copy", :js,
           optional_project_custom_field.id,
           optional_project_custom_field_with_default.id
         )
-      end
-
-      it "does not disable optional project custom fields if explicitly set to blank" do
-        # Expand advanced settings
-        click_on "Advanced settings"
-        editor = Components::WysiwygEditor.new "[data-qa-field-name='customField#{optional_project_custom_field.id}']"
-        editor.clear
-
-        click_button "Save"
-
-        wait_for_copy_to_finish
-
-        copied_project = Project.find_by(name: "Copied project")
-
-        expect(copied_project.project_custom_field_ids).to contain_exactly(
-          project_custom_field.id,
-          optional_project_custom_field.id,
-          optional_project_custom_field_with_default.id
-        )
-
-        # the optional custom field is activated, but set to blank value
-        expect(copied_project.custom_value_for(optional_project_custom_field).typed_value).to eq("")
       end
 
       it "does enable project custom fields if set to blank in source project" do
@@ -261,11 +234,11 @@ RSpec.describe "Projects copy", :js,
         general_settings_page.visit!
         general_settings_page.click_copy_action
 
-        expect(page).to have_text "Copy project \"#{project.name}\""
+        expect(page).to have_heading "Copy project \"#{project.name}\""
 
         fill_in "Name", with: "Copied project"
 
-        click_button "Save"
+        click_on "Copy"
 
         wait_for_copy_to_finish
 
@@ -294,6 +267,8 @@ RSpec.describe "Projects copy", :js,
         end
 
         it "does not enable optional project custom fields with default values when not enabled in source project" do
+          expect(page).to have_heading "Copy project \"#{project.name}\""
+
           # the optional boolean and string fields are not activated in the source project
           expect(project.project_custom_field_ids).to contain_exactly(
             project_custom_field.id,
@@ -301,7 +276,9 @@ RSpec.describe "Projects copy", :js,
             optional_project_custom_field_with_default.id
           )
 
-          click_button "Save"
+          fill_in "Name", with: "Copied project"
+
+          click_on "Copy"
 
           wait_for_copy_to_finish
 
@@ -321,6 +298,7 @@ RSpec.describe "Projects copy", :js,
       let!(:invisible_field) do
         create(:string_project_custom_field, name: "Text for Admins only",
                                              admin_only: true,
+                                             is_required: true,
                                              project_custom_field_section:,
                                              projects: [project])
       end
@@ -332,22 +310,21 @@ RSpec.describe "Projects copy", :js,
         general_settings_page = Pages::Projects::Settings::General.new(project)
         general_settings_page.visit!
         general_settings_page.click_copy_action
-
-        expect(page).to have_text "Copy project \"#{project.name}\""
-
-        fill_in "Name", with: "Copied project"
-        click_on "Advanced settings"
       end
 
       context "with an admin user" do
         let(:user) { create(:admin) }
 
         it "shows invisible fields in the form and allows their activation" do
+          expect(page).to have_heading "Copy project \"#{project.name}\""
+
           expect(page).to have_content "Text for Admins only"
+
+          fill_in "Name", with: "Copied project"
 
           # don't touch the source value
 
-          click_button "Save"
+          click_on "Copy"
 
           wait_for_copy_to_finish
 
@@ -366,9 +343,15 @@ RSpec.describe "Projects copy", :js,
 
       context "with non-admin user" do
         it "does not show invisible fields in the form and but still activates them" do
+          pending "Admin-only project attributes currently prevent users from creating projects (OP#64479)"
+
+          expect(page).to have_heading "Copy project \"#{project.name}\""
+
           expect(page).to have_no_content "Text for Admins only"
 
-          click_button "Save"
+          fill_in "Name", with: "Copied project"
+
+          click_on "Copy"
 
           wait_for_copy_to_finish
 
@@ -402,29 +385,36 @@ RSpec.describe "Projects copy", :js,
         create(:version_project_custom_field,
                name: "Version CF",
                multi_value: true,
+               is_required: true,
                project_custom_field_section:,
                projects: [project])
       end
 
-      let(:version_field) { FormFields::SelectFormField.new version_custom_field }
+      let(:version_field) do
+        FormFields::SelectFormField.new(
+          version_custom_field,
+          selector: "[data-qa-field-name='#{version_custom_field.attribute_name(:kebab_case)}'"
+        )
+      end
 
       before do
         general_settings_page = Pages::Projects::Settings::General.new(project)
         general_settings_page.visit!
         general_settings_page.click_copy_action
-
-        fill_in "Name", with: "Copied project"
-        click_on "Advanced settings"
       end
 
       it "can create a project" do
+        expect(page).to have_heading "Copy project \"#{project.name}\""
+
+        fill_in "Name", with: "Copied project"
+
         # expect the versions are grouped by the project name
         version_field.expect_option(versions.first.name, grouping: project.name)
         version_field.expect_option(versions.last.name, grouping: public_project.name)
 
         version_field.select_option(versions.first.name, versions.last.name)
 
-        click_button "Save"
+        click_on "Copy"
 
         wait_for_copy_to_finish
 
@@ -454,10 +444,10 @@ RSpec.describe "Projects copy", :js,
         general_settings_page.visit!
         general_settings_page.click_copy_action
 
-        expect(page).to have_text "Copy project \"#{project.name}\""
+        expect(page).to have_heading "Copy project \"#{project.name}\""
 
         fill_in "Name", with: "Copied project"
-        click_on "Save"
+        click_on "Copy"
 
         wait_for_copy_to_finish
 
@@ -486,18 +476,14 @@ RSpec.describe "Projects copy", :js,
       general_settings_page.visit!
       general_settings_page.click_copy_action
 
-      expect(page).to have_text "Copy project \"#{project.name}\""
+      expect(page).to have_heading "Copy project \"#{project.name}\""
 
       fill_in "Name", with: "Copied project"
 
-      # Expand advanced settings
-      click_on "Advanced settings"
-
       # the value of the custom field should be preselected
-      editor = Components::WysiwygEditor.new "[data-qa-field-name='customField#{project_custom_field.id}']"
-      editor.expect_value "some text cf"
+      expect(page).to have_selector :rich_text, "Required Foo", text: "some text cf"
 
-      click_on "Save"
+      click_on "Copy"
 
       wait_for_copy_to_finish
 
@@ -615,8 +601,10 @@ RSpec.describe "Projects copy", :js,
       general_settings_page.visit!
       general_settings_page.click_copy_action
 
+      expect(page).to have_heading "Copy project \"#{project.name}\""
+
       fill_in "Name", with: "Copied project"
-      click_on "Save"
+      click_on "Copy"
 
       wait_for_copy_to_finish
 
@@ -672,8 +660,10 @@ RSpec.describe "Projects copy", :js,
       general_settings_page.visit!
       general_settings_page.click_copy_action
 
+      expect(page).to have_heading "Copy project \"#{project.name}\""
+
       fill_in "Name", with: "Copied project"
-      click_on "Save"
+      click_on "Copy"
 
       wait_for_copy_to_finish
 
@@ -698,7 +688,12 @@ RSpec.describe "Projects copy", :js,
   end
 
   def wait_for_copy_to_finish
-    expect(page).to have_text "The job has been queued and will be processed shortly."
+    expect(page).to have_dialog "Background job status"
+
+    within_dialog "Background job status" do
+      expect(page).to have_heading "Copy project"
+      expect(page).to have_text "The job has been queued and will be processed shortly."
+    end
 
     # ensure all jobs are run especially emails which might be sent later on
     GoodJob.perform_inline

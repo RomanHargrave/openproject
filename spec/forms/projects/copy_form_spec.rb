@@ -27,13 +27,28 @@
 #
 # See COPYRIGHT and LICENSE files for more details.
 #++
-
+#
 require "spec_helper"
-require "support/permission_specs"
 
-RSpec.describe ProjectsController, "copy_projects permission", type: :controller do
-  include PermissionSpecs
+RSpec.describe Projects::CopyForm, type: :forms do
+  include ViewComponent::TestHelpers
 
-  check_permission_required_for("projects#copy_form", :copy_projects)
-  check_permission_required_for("projects#copy", :copy_projects)
+  def render_form
+    render_in_view_context(model, copy_options, described_class) do |model, copy_options, described_class|
+      primer_form_with(url: "/foo", model:) do |f|
+        render(described_class.new(f, copy_options:))
+      end
+    end
+  end
+
+  before do
+    render_form
+  end
+
+  let(:model) { build_stubbed(:project) }
+  let(:copy_options) { Projects::CopyOptions.new }
+
+  it "renders Copy options" do
+    expect(page).to have_selector :fieldset, "Copy options"
+  end
 end

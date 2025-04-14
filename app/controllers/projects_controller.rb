@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #-- copyright
 # OpenProject is an open source project management software.
 # Copyright (C) the OpenProject GmbH
@@ -34,7 +36,7 @@ class ProjectsController < ApplicationController
 
   before_action :find_project, except: %i[index new create export_list_modal]
   before_action :load_query_or_deny_access, only: %i[index export_list_modal]
-  before_action :authorize, only: %i[copy deactivate_work_package_attachments]
+  before_action :authorize, only: %i[copy_form copy deactivate_work_package_attachments]
   before_action :authorize_global, only: %i[new create]
   before_action :require_admin, only: %i[destroy destroy_info]
   before_action :find_optional_template, only: %i[new create]
@@ -106,8 +108,35 @@ class ProjectsController < ApplicationController
     end
   end
 
-  def copy
+  def copy_form
+    @copy_options = Projects::CopyOptions.new
+    @target_project = Projects::CopyService
+      .new(user: current_user, source: @project, contract_options: { validate_model: false })
+      .call(target_project_params: {}, attributes_only: true)
+      .result
+
     render
+  end
+
+  def copy # rubocop:disable Metrics/AbcSize
+    @copy_options = Projects::CopyOptions.new(permitted_params.copy_project_options)
+
+    service_call = Projects::EnqueueCopyService
+      .new(user: current_user, model: @project)
+      .call(
+        target_project_params: permitted_params.new_project.to_h,
+        only: @copy_options.dependencies,
+        send_notifications: @copy_options.send_notifications
+      )
+
+    if service_call.success?
+      job = service_call.result
+      redirect_to job_status_path(job.job_id)
+    else
+      @target_project = service_call.result
+      flash.now[:error] = I18n.t(:notice_unsuccessful_create_with_reason, reason: service_call.message)
+      render action: :copy_form, status: :unprocessable_entity
+    end
   end
 
   # Delete @project

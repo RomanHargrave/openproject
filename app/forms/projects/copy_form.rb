@@ -28,12 +28,16 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-require "spec_helper"
-require "support/permission_specs"
+module Projects
+  class CopyForm < ApplicationForm
+    extend Dry::Initializer
 
-RSpec.describe ProjectsController, "copy_projects permission", type: :controller do
-  include PermissionSpecs
+    option :copy_options
 
-  check_permission_required_for("projects#copy_form", :copy_projects)
-  check_permission_required_for("projects#copy", :copy_projects)
+    form do |f|
+      f.fields_for(:copy_options, copy_options, nested: false) do |builder|
+        CopyOptionsForm.new(builder)
+      end
+    end
+  end
 end
