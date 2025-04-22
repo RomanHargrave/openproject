@@ -37,7 +37,7 @@ RSpec.describe TimeEntries::CreateContract do
 
     let(:time_entry) do
       TimeEntry.new(project: time_entry_project,
-                    work_package: time_entry_work_package,
+                    entity: time_entry_entity,
                     user: time_entry_user,
                     activity: time_entry_activity,
                     spent_on: time_entry_spent_on,
@@ -63,7 +63,7 @@ RSpec.describe TimeEntries::CreateContract do
 
       it "is invalid" do
         expect_valid(false,
-                     work_package: %i(cannot_log_for_this_work_package),
+                     entity: %i(cannot_log_for_this_work_package),
                      base: %i(error_unauthorized))
       end
     end
@@ -90,7 +90,7 @@ RSpec.describe TimeEntries::CreateContract do
 
         it "is invalid" do
           expect_valid(false,
-                       work_package: %i(cannot_log_for_this_work_package),
+                       entity: %i(cannot_log_for_this_work_package),
                        base: %i(error_unauthorized))
         end
       end
@@ -109,7 +109,7 @@ RSpec.describe TimeEntries::CreateContract do
 
       it "is invalid" do
         expect_valid(false,
-                     work_package: %i(cannot_log_for_this_work_package),
+                     entity: %i(cannot_log_for_this_work_package),
                      base: %i(error_unauthorized))
       end
     end
@@ -136,7 +136,7 @@ RSpec.describe TimeEntries::CreateContract do
 
       it "is invalid" do
         expect_valid(false,
-                     work_package: %i(cannot_log_for_this_work_package),
+                     entity: %i(cannot_log_for_this_work_package),
                      base: %i(error_unauthorized))
       end
     end
