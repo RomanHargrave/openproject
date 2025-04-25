@@ -139,7 +139,6 @@ import {
   DraggableAutocompleteComponent,
 } from 'core-app/shared/components/autocompleter/draggable-autocomplete/draggable-autocomplete.component';
 import { OpExclusionInfoComponent } from 'core-app/shared/components/fields/display/info/op-exclusion-info.component';
-import { CopyProjectComponent } from 'core-app/features/projects/components/copy-project/copy-project.component';
 import { OpenProjectJobStatusModule } from 'core-app/features/job-status/openproject-job-status.module';
 import {
   NotificationsSettingsPageComponent,
@@ -418,7 +417,6 @@ export class OpenProjectModule implements DoBootstrap {
     registerCustomElement('opce-custom-modal-overlay', OpCustomModalOverlayComponent, { injector });
 
     // TODO: These elements are now registered custom elements, but are actually single-use components. They should be removed when we move these pages to Rails.
-    registerCustomElement('opce-copy-project', CopyProjectComponent, { injector });
     registerCustomElement('opce-notification-settings', NotificationsSettingsPageComponent, { injector });
     registerCustomElement('opce-reminder-settings', ReminderSettingsPageComponent, { injector });
     registerCustomElement('opce-notification-center', InAppNotificationCenterComponent, { injector });
