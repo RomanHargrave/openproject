@@ -73,12 +73,19 @@ module Storages
             def auth_strategy = Registry["nextcloud.authentication.user_bound"].call(@user, @storage)
 
             def validate_sso
-              register_checks(:non_provisioned_user, :provisioned_user_provider, :token_negotiable, :user_bound_request)
+              register_checks(
+                :non_provisioned_user,
+                :provisioned_user_provider,
+                :token_negotiable,
+                :user_bound_request,
+                :offline_access
+              )
 
               non_provisioned_user
               non_oidc_provisioned_user
               token_negotiable
               user_bound_request
+              offline_access
             end
 
             def non_provisioned_user
@@ -106,16 +113,24 @@ module Storages
               error_code =
                 case result.failure
                 in { code: /token_exchange/ | :unable_to_exchange_token }
-                  :oidc_cant_exchange_token
+                  :oidc_token_exchange_failed
                 in { code: /token_refresh/ }
-                  :oidc_cant_refresh_token
+                  :oidc_token_refresh_failed
                 in { code: :no_token_for_audience }
-                  :oidc_cant_acquire_token
+                  :oidc_token_acquisition_failed
                 else
                   :unknown_error
                 end
 
               fail_check(:token_negotiable, error_code)
+            end
+
+            def offline_access
+              if @user.authentication_provider.scopes.include?("offline_access")
+                pass_check(:offline_access)
+              else
+                warn_check(:offline_access, :offline_access_scope_missing)
+              end
             end
           end
         end

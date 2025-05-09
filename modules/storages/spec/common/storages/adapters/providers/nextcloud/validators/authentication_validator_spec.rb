@@ -74,8 +74,10 @@ module Storages
             context "when using OpenID Connect" do
               let(:storage) { create(:nextcloud_storage_configured, :oidc_sso_enabled) }
 
-              let(:user) { create(:user, authentication_provider: oidc_provider) }
-              let!(:oidc_provider) { create(:oidc_provider) }
+              let(:user) { create(:user, identity_url: "#{oidc_provider.slug}:123123123123") }
+              let!(:oidc_provider) { create(:oidc_provider, scope:) }
+              let!(:saml_provider) { create(:saml_provider) }
+              let(:scope) { "openid email profile offline_access" }
 
               before do
                 User.current = user
@@ -92,25 +94,42 @@ module Storages
 
               describe "error and warning handling" do
                 it "returns a warning if the current user isn't provisioned" do
-                  user.update!(identity_url: nil)
+                  user.user_auth_provider_links.destroy_all
                   result = validator.call
 
                   expect(result[:non_provisioned_user]).to be_warning
                   expect(result[:non_provisioned_user].code).to eq(:oidc_non_provisioned_user)
 
                   state_count = result.tally
-                  expect(state_count).to eq({ skipped: 3, warning: 1 })
+                  expect(state_count).to eq({ skipped: 4, warning: 1 })
                 end
 
                 it "returns a warning if the user is not provisioned by an oidc provider" do
-                  user.update!(identity_url: "ldap-provider:this-will-trigger-a-warning")
+                  link = user.user_auth_provider_links.first
+                  link.update!(auth_provider_id: saml_provider.id)
+
                   result = validator.call
 
                   expect(result[:provisioned_user_provider]).to be_warning
                   expect(result[:provisioned_user_provider].code).to eq(:oidc_non_oidc_user)
 
                   state_count = result.tally
-                  expect(state_count).to eq({ success: 1, skipped: 2, warning: 1 })
+                  expect(state_count).to eq({ success: 1, skipped: 3, warning: 1 })
+                end
+
+                context "when the offline_access scope is not configured" do
+                  let(:scope) { "openid email profile" }
+
+                  it "returns a warning", :aggregate_failures do
+                    create(:oidc_user_token, user:, extra_audiences: storage.audience)
+                    result = validator.call
+
+                    expect(result[:offline_access]).to be_warning
+                    expect(result[:offline_access].code).to eq(:offline_access_scope_missing)
+
+                    state_count = result.tally
+                    expect(state_count).to eq({ success: 4, warning: 1 })
+                  end
                 end
               end
 
@@ -121,7 +140,7 @@ module Storages
                     result = validator.call
 
                     expect(result[:token_negotiable]).to be_failure
-                    expect(result[:token_negotiable].code).to eq(:oidc_cant_acquire_token)
+                    expect(result[:token_negotiable].code).to eq(:oidc_token_acquisition_failed)
                   end
                 end
 
@@ -148,7 +167,7 @@ module Storages
                     result = validator.call
 
                     expect(result[:token_negotiable]).to be_failure
-                    expect(result[:token_negotiable].code).to eq(:oidc_cant_refresh_token)
+                    expect(result[:token_negotiable].code).to eq(:oidc_token_refresh_failed)
                   end
 
                   it "fails when refresh fails" do
@@ -159,18 +178,18 @@ module Storages
                     result = validator.call
 
                     expect(result[:token_negotiable]).to be_failure
-                    expect(result[:token_negotiable].code).to eq(:oidc_cant_refresh_token)
+                    expect(result[:token_negotiable].code).to eq(:oidc_token_refresh_failed)
                   end
 
                   context "when the server supports token exchange" do
-                    let(:oidc_provider) { create(:oidc_provider, :token_exchange_capable) }
-                    let(:exchangeable_token) { create(:oidc_user_token, user:, refresh_token: nil) }
+                    let(:oidc_provider) { create(:oidc_provider, :token_exchange_capable, scope: "offline_access") }
+                    let!(:exchangeable_token) { create(:oidc_user_token, user:, refresh_token: nil) }
 
                     it "favors token exchange when refreshing" do
                       exchange_request = stub_request(:post, oidc_provider.token_endpoint)
-                                           .with(body: { audience: storage.audience,
-                                                         subject_token: exchangeable_token.access_token,
-                                                         grant_type: OpenIDConnect::Provider::TOKEN_EXCHANGE_GRANT_TYPE })
+                                           .with(body: hash_including(
+                                             grant_type: OpenProject::OpenIDConnect::TOKEN_EXCHANGE_GRANT_TYPE
+                                           ))
                                            .and_return_json(status: 200, body: { access_token: "NEW_TOKEN" })
 
                       expect(validator.call).to be_success
@@ -179,29 +198,29 @@ module Storages
 
                     it "fails if the exchange is met with an unexpected body" do
                       exchange_request = stub_request(:post, oidc_provider.token_endpoint)
-                                           .with(body: { audience: storage.audience,
-                                                         subject_token: exchangeable_token.access_token,
-                                                         grant_type: OpenIDConnect::Provider::TOKEN_EXCHANGE_GRANT_TYPE })
+                                           .with(body: hash_including(
+                                             grant_type: OpenProject::OpenIDConnect::TOKEN_EXCHANGE_GRANT_TYPE
+                                           ))
                                            .and_return_json(status: 200, body: { error: "failed " })
 
                       result = validator.call
 
                       expect(result[:token_negotiable]).to be_failure
-                      expect(result[:token_negotiable].code).to eq(:oidc_cant_exchange_token)
+                      expect(result[:token_negotiable].code).to eq(:oidc_token_exchange_failed)
                       expect(exchange_request).to have_been_requested.once
                     end
 
                     it "fails if the exchange fails" do
                       exchange_request = stub_request(:post, oidc_provider.token_endpoint)
-                                           .with(body: { audience: storage.audience,
-                                                         subject_token: exchangeable_token.access_token,
-                                                         grant_type: OpenIDConnect::Provider::TOKEN_EXCHANGE_GRANT_TYPE })
+                                           .with(body: hash_including(
+                                             grant_type: OpenProject::OpenIDConnect::TOKEN_EXCHANGE_GRANT_TYPE
+                                           ))
                                            .and_return(status: 401)
 
                       result = validator.call
 
                       expect(result[:token_negotiable]).to be_failure
-                      expect(result[:token_negotiable].code).to eq(:oidc_cant_exchange_token)
+                      expect(result[:token_negotiable].code).to eq(:oidc_token_exchange_failed)
                       expect(exchange_request).to have_been_requested.once
                     end
                   end

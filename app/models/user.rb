@@ -276,7 +276,7 @@ class User < Principal
   def self.try_to_autologin(key)
     token = Token::AutoLogin.find_by_plaintext_value(key) # rubocop:disable Rails/DynamicFindBy
     # Make sure there's only 1 token that matches the key
-    if token && ((token.created_at > Setting.autologin.to_i.day.ago) && token.user && token.user.active?)
+    if token && (token.created_at > Setting.autologin.to_i.day.ago) && token.user&.active?
       token.user
     end
   end
@@ -327,6 +327,10 @@ class User < Principal
   # Return user's authentication provider for display
   def human_authentication_provider
     authentication_provider&.display_name
+  end
+
+  def provided_by_oidc?
+    authentication_provider.is_a?(OpenIDConnect::Provider)
   end
 
   ##
