@@ -55,11 +55,13 @@ module ReportingHelper
     end
 
     name = name.camelcase
-    if CostQuery::Filter.const_defined? name
+    if CostQuery::Filter.const_defined?(name)
       CostQuery::Filter.const_get(name).label
-    elsif
-      CostQuery::GroupBy.const_defined? name
+    elsif CostQuery::GroupBy.const_defined?(name)
       CostQuery::GroupBy.const_get(name).label
+    elsif field.to_sym.in?(%i[entity entity_id entity_type])
+      # TODO: Temporary override for now
+      TimeEntry.human_attribute_name(:entity)
     else
       # note that using WorkPackage.human_attribute_name relies on the attribute
       # being an work_package attribute or a general attribute for all models which might not
