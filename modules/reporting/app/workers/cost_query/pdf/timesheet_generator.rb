@@ -165,7 +165,7 @@ class CostQuery::PDF::TimesheetGenerator
               .filter { |r| r.fields["type"] == "TimeEntry" }
               .flat_map { |r| r.fields["id"] }
 
-      TimeEntry.where(id: ids).includes(%i[user activity work_package project])
+      TimeEntry.where(id: ids).includes(%i[user activity project])
     end
   end
 
