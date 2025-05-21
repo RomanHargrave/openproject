@@ -100,7 +100,9 @@ module API
 
         # TODO: DEPRECATED!
         associated_resource :work_package,
-                            skip_render: ->(*) { represented.entity_type != "WorkPackage" }
+                            skip_render: ->(*) { represented.entity_type != "WorkPackage" },
+                            getter: ->(*) { represented.entity if represented.entity_type == "WorkPackage" },
+                            setter: ->(value) { represented.entity = value }
 
         associated_resource :user
 
