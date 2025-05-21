@@ -121,9 +121,15 @@ module ReportingHelper
       budget_link value
     when :work_package_id
       link_to_work_package(WorkPackage.find(value.to_i))
-    when :entity_id # rubocop:disable Lint/DuplicateBranch
-      # TODO: Add ability to use other resources here as well
-      link_to_work_package(WorkPackage.find(value.to_i))
+    when :entity_gid
+      # TODO: All possible time entry associations need to be checked here
+      entity = GlobalID::Locator.locate(value, only: TimeEntry::ALLOWED_ENTITY_TYPES.map(&:safe_constantize))
+      if entity.is_a?(WorkPacakge)
+        link_to_work_package(entity)
+      else
+        # TODO proper other links
+        entity.inspect
+      end
     when :entity_type
       # TODO: Skip for now
       nil

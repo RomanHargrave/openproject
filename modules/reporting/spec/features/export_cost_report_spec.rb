@@ -37,18 +37,18 @@ RSpec.describe "Cost reports XLS export", :js do
   shared_let(:cost_type) { create(:cost_type, name: "Post-war", unit: "cap", unit_plural: "caps") }
   shared_let(:work_package) { create(:work_package, project:, subject: "Some task") }
   shared_let(:cost_entry) do
-    create(:cost_entry, user:, work_package:, project:,
+    create(:cost_entry, user:, entity: work_package, project:,
                         cost_type:, spent_on: 3.days.ago)
   end
   shared_let(:time_entry) do
-    create(:time_entry, user:, work_package:, project:,
+    create(:time_entry, user:, entity: work_package, project:,
                         start_time: 1 * 60,
                         spent_on: 2.days.ago,
                         hours: 1.95,
                         time_zone: "UTC")
   end
   shared_let(:time_entry_long) do
-    create(:time_entry, user:, work_package:, project:,
+    create(:time_entry, user:, entity: work_package, project:,
                         start_time: 1 * 60,
                         spent_on: 1.day.ago,
                         hours: 28.0,

@@ -68,6 +68,11 @@ class CostQuery::Result < Report::Result
       start + self["units"].to_f.hours
     end
 
+    def entity_gid
+      # TODO: Find if there is a better way to generate the entity GID
+      "gid://#{GlobalID.app}/#{self['entity_type']}/#{self['entity_id']}"
+    end
+
     private
 
     def timestamp(date, time, time_zone)

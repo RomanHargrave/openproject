@@ -80,6 +80,8 @@ class OpenProject::Reporting::CostEntryXlsTable < OpenProject::XlsExport::XlsVie
 
   def cost_row(result)
     current_cost_type_id = result.fields["cost_type_id"].to_i
+    # TODO: What would be the correct way here?
+    result.fields["entity_gid"] = result.entity_gid
 
     cost_main_columns(result)
       .concat(cost_fields_columns(result))
@@ -125,7 +127,7 @@ class OpenProject::Reporting::CostEntryXlsTable < OpenProject::XlsExport::XlsVie
   end
 
   def cost_entry_attributes
-    %i[user_id activity_id work_package_id comments project_id]
+    %i[user_id activity_id entity_gid comments project_id]
   end
 
   # Returns the results of the query sorted by date the time was spent on and by id

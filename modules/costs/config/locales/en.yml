@@ -40,7 +40,6 @@ en:
         spent: "Spent"
         spent_on: "Date"
         logged_by: "Logged by"
-        entity: Entity
       cost_type:
         unit: "Unit name"
         unit_plural: "Pluralized unit name"
@@ -59,7 +58,6 @@ en:
       time_entry:
         project: Project
         user: User
-        entity: Entity
         work_package: Work package
         subject: Subject
         hours: Hours
@@ -101,6 +99,9 @@ en:
     units: "Units"
     valid_from: "Valid from"
     fixed_date: "Fixed date"
+    entity: Entity
+    entity_id: Entity
+    entity_gid: Entity
 
   button_add_rate: "Add rate"
   button_log_costs: "Log unit costs"
