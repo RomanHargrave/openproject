@@ -31,6 +31,7 @@ import { ProjectResource } from 'core-app/features/hal/resources/project-resourc
 import { InputState } from '@openproject/reactivestates';
 import { WorkPackageResource } from 'core-app/features/hal/resources/work-package-resource';
 import Formattable = api.v3.Formattable;
+import { MeetingResource } from 'core-app/features/hal/resources/meeting-resource';
 
 export class TimeEntryResource extends HalResource {
   project:ProjectResource;
@@ -39,7 +40,7 @@ export class TimeEntryResource extends HalResource {
 
   comment:Formattable;
 
-  workPackage:WorkPackageResource;
+  entity:WorkPackageResource|MeetingResource;
 
   spentOn:string;
 

@@ -59,7 +59,7 @@ import { PathHelperService } from 'core-app/core/path-helper/path-helper.service
 
 interface TimeEntrySchema extends SchemaResource {
   activity:IFieldSchema;
-  workPackage:IFieldSchema;
+  entity:IFieldSchema;
   project:IFieldSchema;
   hours:IFieldSchema;
   user:IFieldSchema;
@@ -608,16 +608,16 @@ export class TimeEntryCalendarComponent implements AfterViewInit, OnDestroy {
 
   private entryName(entry:TimeEntryResource):string {
     let { name } = entry.project;
-    if (entry.workPackage) {
-      name += ` - ${this.workPackageName(entry)}`;
+    if (entry.entity) {
+      name += ` - ${this.entityName(entry)}`;
     }
 
     return name || '-';
   }
 
-  private workPackageName(entry:TimeEntryResource):string {
-    const workPackage = entry.workPackage;
-    return `#${idFromLink(workPackage.href)}: ${workPackage.name}`;
+  private entityName(entry:TimeEntryResource):string {
+    const entity = entry.entity;
+    return `#${idFromLink(entity.href)}: ${entity.name}`;
   }
 
   private tooltipContentString(entry:TimeEntryResource, schema:TimeEntrySchema):string {
@@ -628,8 +628,8 @@ export class TimeEntryCalendarComponent implements AfterViewInit, OnDestroy {
             <span class="tooltip--map--value">${this.sanitizedValue(entry.project.name)}</span>
           </li>
           <li class="tooltip--map--item">
-            <span class="tooltip--map--key">${schema.workPackage.name}:</span>
-            <span class="tooltip--map--value">${entry.workPackage ? this.sanitizedValue(this.workPackageName(entry)) : this.i18n.t('js.placeholders.default')}</span>
+            <span class="tooltip--map--key">${schema.entity.name}:</span>
+            <span class="tooltip--map--value">${entry.entity ? this.sanitizedValue(this.entityName(entry)) : this.i18n.t('js.placeholders.default')}</span>
           </li>
           <li class="tooltip--map--item">
             <span class="tooltip--map--key">${schema.activity.name}:</span>
