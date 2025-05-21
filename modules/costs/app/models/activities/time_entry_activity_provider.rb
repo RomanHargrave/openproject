@@ -31,8 +31,9 @@ class Activities::TimeEntryActivityProvider < Activities::BaseActivityProvider
                         permission: :view_time_entries
 
   def extend_event_query(query)
-    query.join(work_packages_table).on(work_package_join_condition)
-    query.join(types_table).on(work_packages_table[:type_id].eq(types_table[:id]))
+    query.outer_join(work_packages_table).on(work_package_join_condition)
+    query.outer_join(meetings_table).on(meeting_join_condition)
+    query.outer_join(types_table).on(work_packages_table[:type_id].eq(types_table[:id]))
   end
 
   def event_query_projection
@@ -44,6 +45,7 @@ class Activities::TimeEntryActivityProvider < Activities::BaseActivityProvider
       activity_journal_projection_statement(:entity_id, "entity_id"),
       projection_statement(projects_table, :name, "project_name"),
       projection_statement(work_packages_table, :subject, "work_package_subject"),
+      projection_statement(meetings_table, :title, "meeting_title"),
       projection_statement(types_table, :name, "type_name")
     ]
   end
@@ -56,18 +58,28 @@ class Activities::TimeEntryActivityProvider < Activities::BaseActivityProvider
     )
   end
 
+  def meeting_join_condition
+    activity_journals_table[:entity_type].eq("Meeting").and(
+      activity_journals_table[:entity_id].eq(meetings_table[:id])
+    )
+  end
+
   def event_title(event)
-    event["entity_id"].blank? ? event["project_name"] : work_package_title(event)
+    event["entity_id"].blank? ? event["project_name"] : entity_title(event)
   end
 
   def event_type(_event)
     "time-entry"
   end
 
-  def work_package_title(event)
-    Activities::WorkPackageActivityProvider.work_package_title(event["entity_id"],
-                                                               event["work_package_subject"],
-                                                               event["type_name"])
+  def entity_title(event)
+    if event["entity_type"] == "WorkPackage"
+      Activities::WorkPackageActivityProvider.work_package_title(event["entity_id"],
+                                                                 event["work_package_subject"],
+                                                                 event["type_name"])
+    elsif event["entity_type"] == "Meeting"
+      event["meeting_title"]
+    end
   end
 
   def event_description(event)
@@ -91,6 +103,10 @@ class Activities::TimeEntryActivityProvider < Activities::BaseActivityProvider
 
   def work_packages_table
     @work_packages_table ||= WorkPackage.arel_table
+  end
+
+  def meetings_table
+    @meetings_table ||= Meeting.arel_table
   end
 
   def event_location(event, only_path: true)
