@@ -28,7 +28,7 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-class Activities::ItemComponent < ViewComponent::Base # rubocop:disable OpenProject/AddPreviewForViewComponent
+class Activities::ItemComponent < ViewComponent::Base
   with_collection_parameter :event
   strip_trailing_whitespace
 
@@ -100,7 +100,7 @@ class Activities::ItemComponent < ViewComponent::Base # rubocop:disable OpenProj
   end
 
   def work_package?
-    data[:work_package]
+    data.key?(:work_package) || data[:entity_type] == "WorkPackage"
   end
 
   def data
@@ -126,6 +126,8 @@ class Activities::ItemComponent < ViewComponent::Base # rubocop:disable OpenProj
 
     details.delete(:user_id) if details[:logged_by_id] == details[:user_id]
     delete_detail(details, :work_package_id)
+    delete_detail(details, :entity_type)
+    delete_detail(details, :entity_id)
     delete_detail(details, :comments)
     delete_detail(details, :activity_id)
     delete_detail(details, :spent_on)
