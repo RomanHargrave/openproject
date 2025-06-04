@@ -5,22 +5,22 @@
   alignment="bottom-start"
   class="op-project-list-modal"
 >
-  <button
+  <a
     id="projects-menu"
     accesskey="5"
     aria-haspopup="true"
-    class="op-app-menu--item-action"
+    class="op-menu--item-action"
     type="button"
     slot="trigger"
     (click)="toggleDropModal()"
     data-test-selector="op-projects-menu"
   >
     <span
-      class="op-app-menu--item-title ellipsis"
+      class="op-menu--item-title ellipsis"
       [textContent]="currentProjectName()"
     ></span>
-    <i class="op-app-menu--item-dropdown-indicator button--dropdown-indicator"></i>
-  </button>
+    <i class="op-menu--item-dropdown-indicator button--dropdown-indicator"></i>
+  </a>
 
   <ng-container slot="body">
     <div class="op-project-list-modal--header">
