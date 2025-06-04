@@ -9,16 +9,20 @@
     id="projects-menu"
     accesskey="5"
     aria-haspopup="true"
-    class="op-menu--item-action"
+    class="op-menu--item"
     type="button"
     slot="trigger"
     (click)="toggleDropModal()"
     data-test-selector="op-projects-menu"
   >
     <span
-      class="op-menu--item-title ellipsis"
-      [textContent]="currentProjectName()"
-    ></span>
+      class="op-menu--item-title">
+      <span
+        class="ellipsis"
+        [textContent]="currentProjectName()"
+        [attr.title]="currentProjectName()">
+      </span>
+    </span>
     <i class="op-menu--item-dropdown-indicator button--dropdown-indicator"></i>
   </a>
 
