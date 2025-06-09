@@ -54,6 +54,10 @@ export class PathHelperService {
     return `${this.staticBase}/attachments/${attachmentIdentifier}/content`;
   }
 
+  public attributeHelpTextsShowDialogPath(id:string|number) {
+    return `${this.staticBase}/attribute_help_texts/${id}/show_dialog`;
+  }
+
   public fileLinksPath():string {
     return `${this.api.v3.apiV3Base}/file_links`;
   }

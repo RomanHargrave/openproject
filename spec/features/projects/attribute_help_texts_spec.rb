@@ -56,7 +56,6 @@ RSpec.describe "Project attribute help texts", :js do
                            end_column: 1)
   end
 
-  let(:modal) { Components::AttributeHelpTextModal.new(instance) }
   let(:wp_page) { Pages::FullWorkPackage.new work_package }
 
   before do
@@ -65,7 +64,7 @@ RSpec.describe "Project attribute help texts", :js do
     instance
   end
 
-  shared_examples "allows to view help texts" do
+  shared_examples "allows to view help texts" do |show_edit:|
     it "shows an indicator for whatever help text exists" do
       visit project_path(project)
 
@@ -77,18 +76,28 @@ RSpec.describe "Project attribute help texts", :js do
       expect(page).to have_css("#{test_selector('op-widget-box--header')} .help-text--entry", wait: 10)
 
       # Open help text modal
-      modal.open!
-      expect(modal.modal_container).to have_css("strong", text: "help text")
-      modal.expect_edit(editable: user.allowed_globally?(:edit_attribute_help_texts))
+      page.find("[data-qa-help-text-for='#{instance.attribute_name.camelize(:lower)}']").click
 
-      modal.close!
+      expect(page).to have_modal "Description"
+      within_modal "Description" do
+        expect(page).to have_css("strong", text: "help text")
+
+        expect(page).to have_button "Close"
+        if show_edit
+          expect(page).to have_link "Edit"
+        end
+
+        click_on "Close"
+      end
+
+      expect(page).to have_no_modal "Description"
     end
   end
 
   describe "as admin" do
     let(:user) { create(:admin) }
 
-    it_behaves_like "allows to view help texts"
+    it_behaves_like "allows to view help texts", show_edit: true
 
     it "shows the help text on the project create form", :selenium do
       visit new_project_path
@@ -119,6 +128,6 @@ RSpec.describe "Project attribute help texts", :js do
       create(:user, member_with_permissions: { project => [:view_project] })
     end
 
-    it_behaves_like "allows to view help texts"
+    it_behaves_like "allows to view help texts", show_edit: false
   end
 end
