@@ -103,7 +103,12 @@ See COPYRIGHT and LICENSE files for more details.
         <opce-main-menu-resizer></opce-main-menu-resizer>
         <div id="menu-sidebar">
           <%= render_projects_top_menu_node %>
-          <div class="spot-divider"></div>
+          <%= render(Primer::BaseComponent.new(tag: :hr,
+                                               classes: "main-menu--projects-divider",
+                                               role: :presentation,
+                                               aria: {
+                                                 hidden: true
+                                               })) %>
           <%= main_menu %>
           <%= content_for :main_menu %>
           <%= call_hook :view_layouts_base_main_menu %>
