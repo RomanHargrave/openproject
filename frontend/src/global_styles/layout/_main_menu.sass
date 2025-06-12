@@ -52,10 +52,16 @@ $arrow-left-width: 40px
   background-color: var(--main-menu-bg-color)
 
   #menu-sidebar
-    height: calc(100vh - var(--header-height))
+    // reduce the height of projects selector (77px)
+    // projects selector height (40px) + its margin top (12px) + divider height (1px) + its margin top and bottom (24px)
+    height: calc(100vh - var(--header-height) - 77px)
     position: relative
     @include styled-scroll-bar
 
+    .menu_root
+      @include styled-scroll-bar
+      height: calc(100vh - var(--header-height) - 77px)
+      overflow-y: scroll
     // Fixed heights to allow inner scrolling
     .menu_root.closed,
     .menu_root > li.open,
