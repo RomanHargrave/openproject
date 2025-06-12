@@ -45,13 +45,13 @@ $arrow-left-width: 40px
   width: var(--main-menu-width)
   min-width: var(--main-menu-width)
   overflow-x: hidden
+  overflow-y: hidden
   border-right-style: solid
   border-right-width: var(--main-menu-border-width)
   border-right-color: var(--main-menu-border-color)
   background-color: var(--main-menu-bg-color)
 
   #menu-sidebar
-    +allow-vertical-scrolling
     height: calc(100vh - var(--header-height))
     position: relative
     @include styled-scroll-bar
@@ -75,7 +75,8 @@ $arrow-left-width: 40px
       background: var(--borderColor-muted)
       margin: 0.75rem 0
 
-  a:not(.Button):focus
+  a:not(.Button), .op-project-select--trigger-button
+    &:focus
     color: var(--main-menu-font-color)
 
   ul
@@ -113,7 +114,7 @@ $arrow-left-width: 40px
       // children have no icon so we need to push them right.
       padding-left: var(--main-menu-x-spacing)
 
-  a:not(.Button)
+  a:not(.Button), .op-project-select--trigger-button
     text-decoration: none
     line-height: var(--main-menu-item-height)
     position: relative
@@ -147,7 +148,7 @@ $arrow-left-width: 40px
   .toggler:hover
     @include main-menu-hover
 
-  a:not(.Button)
+  a:not(.Button), .op-project-select--trigger-button
     border: 1px solid transparent
 
     &.selected, &.selected + a
@@ -165,7 +166,7 @@ $arrow-left-width: 40px
   a:not(.Button):not(.toggler)
     @extend .small-12
 
-  a:not(.Button):not(#projects-menu):not(:only-child):first-of-type
+  a:not(.Button):not(:only-child):first-of-type
     flex: 0 0 calc(100% - 40px)
     max-width: calc(100% - 40px)
 
@@ -401,7 +402,6 @@ $badge_offset: 4px
   background: transparent
   color: var(--main-menu-font-color)
   border: none
-
 
 #main-menu-toggle
   .icon-close

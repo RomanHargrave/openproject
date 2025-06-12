@@ -5,11 +5,11 @@
   alignment="bottom-start"
   class="op-project-list-modal"
 >
-  <a
+  <button
     id="projects-menu"
     accesskey="5"
     aria-haspopup="true"
-    class="op-menu--item"
+    class="op-menu--item op-project-select--trigger-button"
     type="button"
     slot="trigger"
     (click)="toggleDropModal()"
@@ -24,7 +24,7 @@
       </span>
     </span>
     <i class="op-menu--item-dropdown-indicator button--dropdown-indicator"></i>
-  </a>
+  </button>
 
   <ng-container slot="body">
     <div class="op-project-list-modal--header">

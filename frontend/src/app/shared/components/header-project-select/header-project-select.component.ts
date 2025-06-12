@@ -46,7 +46,6 @@ import { ApiV3Filter } from 'core-app/shared/helpers/api-v3/api-v3-filter-builde
 import { IHALCollection } from 'core-app/core/apiv3/types/hal-collection.type';
 import { ConfigurationService } from 'core-app/core/config/configuration.service';
 
-
 @Component({
   selector: 'opce-header-project-select',
   templateUrl: './header-project-select.component.html',
@@ -58,7 +57,7 @@ import { ConfigurationService } from 'core-app/core/config/configuration.service
   ],
 })
 export class OpHeaderProjectSelectComponent extends UntilDestroyedMixin implements OnInit {
-  @HostBinding('class.op-header-project-select') className = true;
+  @HostBinding('class.op-project-select') className = true;
 
   public dropModalOpen = false;
 
