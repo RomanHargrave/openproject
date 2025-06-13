@@ -120,6 +120,54 @@ en:
       explanation:
         text: "Individual actions of a user (e.g. updating a work package twice) are aggregated into a single action if their age difference is less than the specified timespan. They will be displayed as a single action within the application. This will also delay notifications by the same amount of time reducing the number of emails being sent and will also affect %{webhook_link} delay."
         link: "webhook"
+    scim_clients:
+      authentication_methods:
+        sso: "Single sign-on"
+        oauth2_client: "OAuth 2.0 client credentials"
+        oauth2_token: "Static token"
+      created_client_credentials_dialog_component:
+        title: "Client credentials created"
+        heading: "Client credentials have been generated"
+        one_time_hint: "This is the only time you will see the client secret. Make sure to copy it now."
+      created_token_dialog_component:
+        title: "Token created"
+        heading: "A token has been generated"
+        label_token: "Token"
+        one_time_hint: "This is the only time you will see this token. Make sure to copy it now."
+      delete_scim_client_dialog_component:
+        title: "Delete SCIM client"
+        heading: "Are you sure you want to delete this SCIM client?"
+        description: "Users managed by this SCIM client can no longer be updated by it."
+      edit:
+        label_delete_scim_client: "Delete SCIM client"
+      form:
+        auth_provider_description: "This is the service that users added by the SCIM provider will use to authenticate in OpenProject."
+        authentication_method_description_html: "This is how the SCIM client authenticates at OpenProject. Please ensure that JWT used for SCIM client authentication contains <code>scim_v2</code> scope."
+        description_html: 'Please refer to our <a href="%{docs_url}">documentation on configuring SCIM clients</a> for more information on these configuration options.'
+        jwt_sub_description_html: 'For example, for Keycloak, this is the UUID of the service account  associated with the SCIM client. Consult <a href="%{docs_url}">our documentation</a> to learn how to find  the subject claim for your use case.'
+        name_description: "Choose a name that will help other admins better understand why this client was configured."
+      index:
+        description: "SCIM clients are able to interact with OpenProject SCIM server API to provision, update, and deprovision user accounts and groups."
+      new:
+        title: "New SCIM client"
+      revoke_static_token_dialog_component:
+        confirm_button: "Revoke"
+        title: "Revoke static token"
+        heading: "Are you sure you want to revoke this token?"
+        description: "The SCIM client that uses this token will no longer be able to access OpenProject's SCIM server API."
+      table_component:
+        blank_slate:
+          title: "No SCIM clients configured yet"
+          description: "Add clients to see them here"
+        user_count: "Users"
+      token_list_component:
+        add_token: "Add token"
+      token_table_component:
+        blank_slate:
+          title: "No tokens have been created yet"
+          description: "You can create one now"
+        expired: "Expired on %{date}"
+        revoked: "Revoked on %{date}"
 
   authentication:
     login_and_registration: "Login and registration"
@@ -963,7 +1011,7 @@ en:
         attribute_name: "Attribute"
         help_text: "Help text"
       auth_provider:
-        scim_clients: "SCIM Clients"
+        scim_clients: "SCIM clients"
       capability:
         context: "Context"
       changeset:
@@ -1127,6 +1175,10 @@ en:
         url: "URL"
       role:
         permissions: "Permissions"
+      scim_client:
+        auth_provider: "Authentication provider"
+        authentication_method: "Authentication method"
+        jwt_sub: "Subject claim"
       status:
         is_closed: "Work package closed"
         is_readonly: "Work package read-only"
@@ -1649,8 +1701,8 @@ en:
         one: "Role"
         other: "Roles"
       scim_client:
-        one: "SCIM Client"
-        other: "SCIM Clients"
+        one: "SCIM client"
+        other: "SCIM clients"
       status: "Work package status"
       token/api:
         one: Access token

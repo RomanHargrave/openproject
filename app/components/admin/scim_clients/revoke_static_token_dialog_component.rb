@@ -28,23 +28,32 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-class ScimClient < ApplicationRecord
-  belongs_to :auth_provider
+module Admin
+  module ScimClients
+    class RevokeStaticTokenDialogComponent < ApplicationComponent
+      include OpTurbo::Streamable
 
-  has_one :oauth_application, class_name: "::Doorkeeper::Application", as: :integration, dependent: :destroy
+      TEST_SELECTOR = "op-scim-clients--revoke-static-token-dialog"
 
-  has_one :service_account_association, as: :service, dependent: :destroy
-  has_one :service_account, through: :service_account_association
+      def initialize(model, scim_client_id:, turbo_frame: nil)
+        super(model)
 
-  enum :authentication_method, {
-    sso: 0,
-    oauth2_client: 1,
-    oauth2_token: 2
-  }, scopes: false, prefix: true
+        @scim_client_id = scim_client_id
+        @turbo_frame = turbo_frame
+      end
 
-  def access_tokens
-    return Doorkeeper::AccessToken.none unless authentication_method_oauth2_token?
+      def form_arguments
+        {
+          action: admin_scim_client_static_token_path(model, scim_client_id: @scim_client_id),
+          method: :delete
+        }.merge(turbo_frame_arguments)
+      end
 
-    oauth_application.access_tokens
+      def turbo_frame_arguments
+        return {} if @turbo_frame.nil?
+
+        { data: { turbo_frame: @turbo_frame } }
+      end
+    end
   end
 end

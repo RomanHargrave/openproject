@@ -33,5 +33,15 @@ FactoryBot.define do
     sequence(:name) { |n| "SCIM Client #{n}" }
     auth_provider factory: :oidc_provider
     authentication_method { :sso }
+
+    trait :oauth2_token do
+      authentication_method { :oauth2_token }
+      oauth_application
+    end
+
+    trait :oauth2_client do
+      authentication_method { :oauth2_client }
+      oauth_application
+    end
   end
 end

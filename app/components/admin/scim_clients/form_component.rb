@@ -28,23 +28,39 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-class ScimClient < ApplicationRecord
-  belongs_to :auth_provider
+module Admin::ScimClients
+  class FormComponent < ApplicationComponent
+    include ApplicationHelper
+    include OpPrimer::ComponentHelpers
+    include OpTurbo::Streamable
 
-  has_one :oauth_application, class_name: "::Doorkeeper::Application", as: :integration, dependent: :destroy
+    def self.wrapper_key = :scim_clients_form
 
-  has_one :service_account_association, as: :service, dependent: :destroy
-  has_one :service_account, through: :service_account_association
+    private
 
-  enum :authentication_method, {
-    sso: 0,
-    oauth2_client: 1,
-    oauth2_token: 2
-  }, scopes: false, prefix: true
+    def form_options
+      form_target.merge(stimulus_controller_options)
+                 .merge(
+                   model: ::ScimClients::FormModel.from_client(model)
+                 )
+    end
 
-  def access_tokens
-    return Doorkeeper::AccessToken.none unless authentication_method_oauth2_token?
+    def form_target
+      if model.new_record?
+        { method: :post, url: admin_scim_clients_path }
+      else
+        { method: :patch, url: admin_scim_client_path(model) }
+      end
+    end
 
-    oauth_application.access_tokens
+    def stimulus_controller_options
+      {
+        data: {
+          application_target: "dynamic",
+          controller: "scim-clients--form-inputs",
+          turbo_frame: "_top"
+        }
+      }
+    end
   end
 end

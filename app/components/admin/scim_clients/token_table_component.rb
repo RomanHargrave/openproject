@@ -28,23 +28,36 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-class ScimClient < ApplicationRecord
-  belongs_to :auth_provider
+module Admin::ScimClients
+  class TokenTableComponent < OpPrimer::BorderBoxTableComponent
+    columns :created_at, :expires_at
+    mobile_labels :created_at, :expires_at
 
-  has_one :oauth_application, class_name: "::Doorkeeper::Application", as: :integration, dependent: :destroy
+    def mobile_title
+      t(".title")
+    end
 
-  has_one :service_account_association, as: :service, dependent: :destroy
-  has_one :service_account, through: :service_account_association
+    def row_class
+      TokenRowComponent
+    end
 
-  enum :authentication_method, {
-    sso: 0,
-    oauth2_client: 1,
-    oauth2_token: 2
-  }, scopes: false, prefix: true
+    def headers
+      [
+        [:created_at, { caption: Doorkeeper::AccessToken.human_attribute_name(:created_at) }],
+        [:expires_at, { caption: Doorkeeper::AccessToken.human_attribute_name(:expires_at) }],
+      ]
+    end
 
-  def access_tokens
-    return Doorkeeper::AccessToken.none unless authentication_method_oauth2_token?
+    def blank_title
+      t(".blank_slate.title")
+    end
 
-    oauth_application.access_tokens
+    def blank_description
+      t(".blank_slate.description")
+    end
+
+    def has_actions?
+      true
+    end
   end
 end

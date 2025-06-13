@@ -28,23 +28,16 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-class ScimClient < ApplicationRecord
-  belongs_to :auth_provider
+module Admin
+  module ScimClients
+    class CreatedTokenDialogComponent < ApplicationComponent
+      include OpTurbo::Streamable
 
-  has_one :oauth_application, class_name: "::Doorkeeper::Application", as: :integration, dependent: :destroy
+      TEST_SELECTOR = "op-scim-clients--created-static-token-dialog"
 
-  has_one :service_account_association, as: :service, dependent: :destroy
-  has_one :service_account, through: :service_account_association
-
-  enum :authentication_method, {
-    sso: 0,
-    oauth2_client: 1,
-    oauth2_token: 2
-  }, scopes: false, prefix: true
-
-  def access_tokens
-    return Doorkeeper::AccessToken.none unless authentication_method_oauth2_token?
-
-    oauth_application.access_tokens
+      def system_arguments
+        options
+      end
+    end
   end
 end

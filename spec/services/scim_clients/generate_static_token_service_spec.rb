@@ -28,23 +28,39 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-class ScimClient < ApplicationRecord
-  belongs_to :auth_provider
+require "spec_helper"
 
-  has_one :oauth_application, class_name: "::Doorkeeper::Application", as: :integration, dependent: :destroy
+RSpec.describe ScimClients::GenerateStaticTokenService do
+  subject(:service_result) { described_class.new(scim_client).call }
+  let(:scim_client) { create(:scim_client, :oauth2_token) }
 
-  has_one :service_account_association, as: :service, dependent: :destroy
-  has_one :service_account, through: :service_account_association
+  it "returns a valid token", :freeze_time, :aggregate_failures do
+    expect(service_result).to be_success
 
-  enum :authentication_method, {
-    sso: 0,
-    oauth2_client: 1,
-    oauth2_token: 2
-  }, scopes: false, prefix: true
+    expect(service_result.result.expires_at).to eq(1.year.from_now)
+  end
 
-  def access_tokens
-    return Doorkeeper::AccessToken.none unless authentication_method_oauth2_token?
+  it "generates a token" do
+    expect { subject }.to change(Doorkeeper::AccessToken, :count).by(1)
+  end
 
-    oauth_application.access_tokens
+  context "when the SCIM client is authenticating through client credentials" do
+    let(:scim_client) { create(:scim_client, :oauth2_client) }
+
+    it { is_expected.to be_failure }
+
+    it "does not generate a token" do
+      expect { subject }.not_to change(Doorkeeper::AccessToken, :count)
+    end
+  end
+
+  context "when the SCIM client is authenticating through IDP tokens" do
+    let(:scim_client) { create(:scim_client) }
+
+    it { is_expected.to be_failure }
+
+    it "does not generate a token" do
+      expect { subject }.not_to change(Doorkeeper::AccessToken, :count)
+    end
   end
 end

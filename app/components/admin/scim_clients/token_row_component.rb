@@ -28,23 +28,44 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-class ScimClient < ApplicationRecord
-  belongs_to :auth_provider
+module Admin::ScimClients
+  class TokenRowComponent < OpPrimer::BorderBoxRowComponent
+    def created_at
+      helpers.format_date(model.created_at)
+    end
 
-  has_one :oauth_application, class_name: "::Doorkeeper::Application", as: :integration, dependent: :destroy
+    def expires_at
+      if model.revoked?
+        t("admin.scim_clients.token_table_component.revoked", date: helpers.format_date(model.revoked_at))
+      elsif model.expired?
+        t("admin.scim_clients.token_table_component.expired", date: helpers.format_date(model.expires_at))
+      else
+        helpers.format_date(model.expires_at)
+      end
+    end
 
-  has_one :service_account_association, as: :service, dependent: :destroy
-  has_one :service_account, through: :service_account_association
+    def button_links
+      [revoke_button] # invisible button outside of menu
+    end
 
-  enum :authentication_method, {
-    sso: 0,
-    oauth2_client: 1,
-    oauth2_token: 2
-  }, scopes: false, prefix: true
+    def revoke_button
+      render(
+        Primer::Beta::IconButton.new(
+          scheme: :invisible,
+          "aria-label": t("button_revoke"),
+          icon: :"no-entry",
+          tag: :a,
+          href: deletion_dialog_admin_scim_client_static_token_path(model, scim_client_id: scim_client.id, target: TokenListComponent.wrapper_key),
+          disabled: model.revoked? || model.expired?,
+          data: { controller: "async-dialog" }
+        )
+      )
+    end
 
-  def access_tokens
-    return Doorkeeper::AccessToken.none unless authentication_method_oauth2_token?
+    private
 
-    oauth_application.access_tokens
+    def scim_client
+      model.application.integration
+    end
   end
 end

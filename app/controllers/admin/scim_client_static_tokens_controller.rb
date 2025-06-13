@@ -28,23 +28,36 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-class ScimClient < ApplicationRecord
-  belongs_to :auth_provider
+module Admin
+  class ScimClientStaticTokensController < ::ApplicationController
+    include OpTurbo::ComponentStream
 
-  has_one :oauth_application, class_name: "::Doorkeeper::Application", as: :integration, dependent: :destroy
+    before_action :require_admin
 
-  has_one :service_account_association, as: :service, dependent: :destroy
-  has_one :service_account, through: :service_account_association
+    def create
+      scim_client = ScimClient.find(params[:scim_client_id])
+      result = ::ScimClients::GenerateStaticTokenService.new(scim_client).call
 
-  enum :authentication_method, {
-    sso: 0,
-    oauth2_client: 1,
-    oauth2_token: 2
-  }, scopes: false, prefix: true
+      update_via_turbo_stream(component: Admin::ScimClients::TokenListComponent.new(scim_client))
 
-  def access_tokens
-    return Doorkeeper::AccessToken.none unless authentication_method_oauth2_token?
+      respond_with_dialog ScimClients::CreatedTokenDialogComponent.new(result.result)
+    end
 
-    oauth_application.access_tokens
+    def deletion_dialog
+      respond_with_dialog ScimClients::RevokeStaticTokenDialogComponent.new(
+        Doorkeeper::AccessToken.find(params[:id]),
+        scim_client_id: params[:scim_client_id],
+        turbo_frame: params[:target].presence
+      )
+    end
+
+    def destroy
+      token = Doorkeeper::AccessToken.find(params[:id])
+      scim_client = ScimClient.find(params[:scim_client_id])
+
+      ::ScimClients::RevokeStaticTokenService.new(scim_client).call(token)
+
+      redirect_to edit_admin_scim_client_path(scim_client)
+    end
   end
 end

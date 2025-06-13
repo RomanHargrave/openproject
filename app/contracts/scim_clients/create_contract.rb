@@ -29,6 +29,16 @@
 #++
 
 module ScimClients
-  class CreateContract < BaseContract
+  class CreateContract < ModelContract
+    attribute :name
+    validates :name, presence: true
+
+    attribute :auth_provider
+    validates :auth_provider, presence: true
+
+    attribute :authentication_method
+    validates :authentication_method, inclusion: { in: ScimClient.authentication_methods.keys }
+
+    # TODO: jwt_sub
   end
 end

@@ -69,6 +69,7 @@ class ScimClients::CreateService < BaseServices::Create
       .call(
         name: "#{model.name} (#{ScimClient.model_name.human})",
         redirect_uri: "urn:ietf:wg:oauth:2.0:oob",
+        client_credentials_user_id: service_account.id,
         scopes: "scim_v2",
         confidential: true,
         integration: model,

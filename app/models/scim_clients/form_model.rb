@@ -29,9 +29,7 @@
 #++
 
 module ScimClients
-  FormModel = Data.define(:name, :auth_provider_id, :authentication_method, :jwt_sub) do
-    extend ActiveModel::Naming
-
+  FormModel = Data.define(:name, :auth_provider_id, :authentication_method, :jwt_sub, :client) do
     class << self
       def from_client(client)
         jwt_sub = client.service_account&.active_user_auth_provider_link&.external_id
@@ -39,18 +37,26 @@ module ScimClients
           name: client.name,
           auth_provider_id: client.auth_provider_id,
           authentication_method: client.authentication_method,
-          jwt_sub:
+          jwt_sub:,
+          client:
         )
       end
+    end
 
-      def from_params(params)
-        new(
-          name: params[:name],
-          auth_provider_id: params[:auth_provider_id],
-          authentication_method: params[:authentication_method].to_s,
-          jwt_sub: params[:jwt_sub]
-        )
-      end
+    def model_name
+      ActiveModel::Name.new(ScimClient)
+    end
+
+    def new_record?
+      !persisted?
+    end
+
+    def persisted?
+      client.persisted?
+    end
+
+    def errors
+      client.errors
     end
   end
 end

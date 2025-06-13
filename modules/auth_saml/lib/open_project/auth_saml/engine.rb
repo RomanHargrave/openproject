@@ -25,6 +25,7 @@ module OpenProject
              :plugin_saml,
              :saml_providers_path,
              parent: :authentication,
+             after: :oauth_applications,
              caption: ->(*) { I18n.t("saml.menu_title") },
              enterprise_feature: "sso_auth_providers"
       end

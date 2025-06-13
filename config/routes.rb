@@ -628,6 +628,18 @@ Rails.application.routes.draw do
               controller: "/admin/attachments/quarantined_attachments",
               only: %i[index destroy]
 
+    resources :scim_clients, only: %i[index edit new create update destroy] do
+      member do
+        get :deletion_dialog
+      end
+
+      resources :static_tokens, only: %i[create destroy], controller: "/admin/scim_client_static_tokens" do
+        member do
+          get :deletion_dialog
+        end
+      end
+    end
+
     resource :backups, controller: "/admin/backups", only: %i[show] do
       collection do
         get :reset_token

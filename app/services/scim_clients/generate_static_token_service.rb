@@ -28,23 +28,27 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-class ScimClient < ApplicationRecord
-  belongs_to :auth_provider
+class ScimClients::GenerateStaticTokenService < BaseServices::BaseCallable
+  def initialize(scim_client)
+    super()
 
-  has_one :oauth_application, class_name: "::Doorkeeper::Application", as: :integration, dependent: :destroy
+    @scim_client = scim_client
+  end
 
-  has_one :service_account_association, as: :service, dependent: :destroy
-  has_one :service_account, through: :service_account_association
+  def perform
+    return ServiceResult.failure unless @scim_client.authentication_method_oauth2_token?
 
-  enum :authentication_method, {
-    sso: 0,
-    oauth2_client: 1,
-    oauth2_token: 2
-  }, scopes: false, prefix: true
+    token = @scim_client.oauth_application.access_tokens.create!(expires_in:)
+    if token.persisted?
+      ServiceResult.success(result: token)
+    else
+      ServiceResult.failure(errors: token.errors)
+    end
+  end
 
-  def access_tokens
-    return Doorkeeper::AccessToken.none unless authentication_method_oauth2_token?
+  private
 
-    oauth_application.access_tokens
+  def expires_in
+    (1.year.from_now - Time.zone.now).to_i
   end
 end
