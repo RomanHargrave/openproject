@@ -80,6 +80,17 @@ module OpenProject
         available.keys
       end
 
+      # TODO: Consider changing the initializer order and moving this to the CustomFieldFormat initializer instead
+      def ensure_calculated_value_if_active!
+        if OpenProject::FeatureDecisions.calculated_value_project_attribute_active? && !@@available.key?("calculated_value")
+          order_of_last_entry = @@available.values.last.order
+          register OpenProject::CustomFieldFormat.new("calculated_value",
+                                                      label: :label_calculated_value,
+                                                      only: %w(Project),
+                                                      order: order_of_last_entry + 1)
+        end
+      end
+
       def find_by(name:)
         registered[name.to_s]
       end
