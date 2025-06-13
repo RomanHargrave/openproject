@@ -74,7 +74,6 @@ See COPYRIGHT and LICENSE files for more details.
         <h1 class="hidden-for-sighted">
           <%= t(:label_top_menu) %>
         </h1>
-        <opce-main-menu-toggle></opce-main-menu-toggle>
         <a href="" class="hidden-for-sighted skip-navigation-link"
            id="skip-navigation--content"
            aria-label="<%= I18n.t('js.work_packages.jump_marks.label_content') %>">
@@ -92,7 +91,9 @@ See COPYRIGHT and LICENSE files for more details.
     </header>
   <% end %>
   <div id="main"
-       class="<%= initial_classes %>">
+       class="<%= initial_classes %>"
+       data-controller="menus--main-toggler"
+       data-application-target="dynamic">
     <% if (side_displayed && show_decoration) %>
       <div
         id="main-menu"
@@ -102,7 +103,15 @@ See COPYRIGHT and LICENSE files for more details.
         <h1 class="hidden-for-sighted"><%= t(:label_main_menu) %></h1>
         <opce-main-menu-resizer></opce-main-menu-resizer>
         <div id="menu-sidebar">
-          <%= render_projects_top_menu_node %>
+          <%= render(Primer::OpenProject::FlexLayout.new(align_items: :center, mt: 2)) do |flex|
+            flex.with_column(flex: :auto, overflow: :hidden) do
+              render_projects_top_menu_node
+            end
+            flex.with_column do
+              render(OpenProject::Common::MainMenuTogglerComponent.new(opened: true))
+            end
+          end %>
+
           <%= render(Primer::BaseComponent.new(tag: :hr,
                                                classes: "main-menu--projects-divider",
                                                role: :presentation,
@@ -141,6 +150,7 @@ See COPYRIGHT and LICENSE files for more details.
         <% end %>
 
         <div id="content-body">
+          <%= render(OpenProject::Common::MainMenuTogglerComponent.new(opened: false)) %>
           <%= content_for :content_body %>
           <% unless local_assigns[:no_layout_yield] %>
             <%= yield %>

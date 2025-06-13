@@ -1,4 +1,6 @@
-#-- copyright
+# frozen_string_literal: true
+
+# -- copyright
 # OpenProject is an open source project management software.
 # Copyright (C) the OpenProject GmbH
 #
@@ -24,23 +26,51 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 # See COPYRIGHT and LICENSE files for more details.
-#++
+# ++
+#
+module OpenProject
+  module Common
+    class MainMenuTogglerComponent < ApplicationComponent
+      def initialize(opened:)
+        super
 
-module Redmine::MenuManager::TopMenu::ProjectsMenu
-  def render_projects_top_menu_node
-    return "" if User.current.anonymous? and Setting.login_required?
-    return "" if User.current.anonymous? and User.current.number_of_known_projects.zero? #TODO
+        @opened = opened
+      end
 
-    render_projects_dropdown
-  end
+      def icon
+        @opened ? "sidebar-expand" : :"sidebar-collapse"
+      end
 
-  private
+      def id
+        "menu-toggler--#{@opened ? 'opener' : 'closer'}"
+      end
 
-  def render_projects_dropdown
-    content_tag(:div, class: "main-menu-item") do
-      angular_component_tag("opce-header-project-select")
+      def aria_label
+        @opened ? I18n.t("js.label_hide_project_menu") : I18n.t("js.label_expand_project_menu")
+      end
+
+      def scheme
+        :invisible
+      end
+
+      def size
+        @opened ? :medium : :small
+      end
+
+      def data
+        {
+          action: "click->menus--main-toggler#toggleNavigation"
+        }
+      end
+
+      def call
+        render(Primer::Beta::IconButton.new(icon:,
+                                            id:,
+                                            aria: { label: aria_label },
+                                            scheme:,
+                                            size:,
+                                            data:))
+      end
     end
   end
-
-  include OpenProject::StaticRouting::UrlHelpers
 end

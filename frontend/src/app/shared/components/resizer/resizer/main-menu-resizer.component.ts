@@ -27,12 +27,9 @@
 //++
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core';
-import { distinctUntilChanged } from 'rxjs/operators';
-
 import { ResizeDelta } from 'core-app/shared/components/resizer/resizer.component';
 import { UntilDestroyedMixin } from 'core-app/shared/helpers/angular/until-destroyed.mixin';
 import { MainMenuToggleService } from 'core-app/core/main-menu/main-menu-toggle.service';
-
 
 @Component({
   selector: 'opce-main-menu-resizer',
@@ -78,16 +75,6 @@ export class MainMenuResizerComponent extends UntilDestroyedMixin implements OnI
   }
 
   ngOnInit() {
-    this.toggleService.titleData$
-      .pipe(
-        distinctUntilChanged(),
-        this.untilDestroyed(),
-      )
-      .subscribe((setToggleTitle) => {
-        this.toggleTitle = setToggleTitle;
-        this.cdRef.detectChanges();
-      });
-
     this.resizeEvent = 'main-menu-resize';
   }
 

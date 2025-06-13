@@ -129,7 +129,7 @@ export class OpHeaderProjectSelectComponent extends UntilDestroyedMixin implemen
       singular: this.I18n.t('js.label_project'),
       plural: this.I18n.t('js.label_project_plural'),
       list: this.I18n.t('js.label_project_list'),
-      select: this.I18n.t('js.label_select_project'),
+      select: this.I18n.t('js.label_all_projects'),
     },
     search_placeholder: this.I18n.t('js.include_projects.search_placeholder'),
     no_results: this.I18n.t('js.include_projects.no_results'),
