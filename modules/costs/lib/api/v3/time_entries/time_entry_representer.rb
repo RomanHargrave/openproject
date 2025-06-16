@@ -102,7 +102,7 @@ module API
         associated_resource :work_package,
                             skip_render: ->(*) { represented.entity_type != "WorkPackage" },
                             getter: ->(*) { represented.entity if represented.entity_type == "WorkPackage" },
-                            setter: ->(value) { represented.entity = value }
+                            setter: ::API::V3::TimeEntries::EntityRepresenterFactory.create_setter_lambda(:entity)
 
         associated_resource :user
 
