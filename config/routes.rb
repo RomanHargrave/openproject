@@ -601,6 +601,10 @@ Rails.application.routes.draw do
           delete :unlink
         end
       end
+
+      resources :project_custom_field_calculated_values,
+                controller: "/admin/settings/project_custom_field_calculated_values"
+
       resources :project_custom_field_sections, controller: "/admin/settings/project_custom_field_sections",
                                                 only: %i[create update destroy] do
         member do

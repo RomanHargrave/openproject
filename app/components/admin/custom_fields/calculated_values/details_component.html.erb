@@ -1,0 +1,15 @@
+<%=
+  component_wrapper do
+    flex_layout do |content|
+      content.with_row do
+        settings_primer_form_with(
+          model:,
+          scope: :custom_field,
+          id: "custom_field_form",
+          url: form_url,
+          method: form_method
+        ) { |form| render Admin::CustomFields::CalculatedValues::DetailsForm.new(form) }
+      end
+    end
+  end
+%>

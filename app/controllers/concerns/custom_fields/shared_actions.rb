@@ -41,7 +41,11 @@ module CustomFields
 
       def edit_path(custom_field, params = {})
         if custom_field.type == "ProjectCustomField"
-          admin_settings_project_custom_field_path(**params)
+          if custom_field.field_format_calculated_value?
+            admin_settings_project_custom_field_calculated_values_path(**params)
+          else
+            admin_settings_project_custom_fields_path(**params)
+          end
         else
           edit_custom_field_path(**params)
         end

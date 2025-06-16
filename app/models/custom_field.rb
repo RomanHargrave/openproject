@@ -299,6 +299,10 @@ class CustomField < ApplicationRecord
     field_format == "hierarchy"
   end
 
+  def field_format_calculated_value?
+    field_format == "calculated_value"
+  end
+
   def multi_value_possible?
     OpenProject::CustomFieldFormat.find_by(name: field_format)&.multi_value_possible?
   end

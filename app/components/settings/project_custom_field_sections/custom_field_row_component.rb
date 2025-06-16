@@ -42,9 +42,17 @@ module Settings
 
       private
 
+      def edit_path
+        if @project_custom_field.field_format_calculated_value?
+          edit_admin_settings_project_custom_field_calculated_value_path(@project_custom_field)
+        else
+          edit_admin_settings_project_custom_field_path(@project_custom_field)
+        end
+      end
+
       def edit_action_item(menu)
         menu.with_item(label: t("label_edit"),
-                       href: edit_admin_settings_project_custom_field_path(@project_custom_field),
+                       href: edit_path,
                        data: { turbo: "false", test_selector: "project-custom-field-edit" }) do |item|
           item.with_leading_visual_icon(icon: :pencil)
         end
