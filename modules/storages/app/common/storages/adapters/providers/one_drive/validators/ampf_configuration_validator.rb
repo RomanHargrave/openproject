@@ -81,8 +81,8 @@ module Storages
 
                 folder_result.either(
                   ->(_) { pass_check(:client_folder_creation) },
-                  lambda do
-                    code = it.code == :conflict ? :od_existing_test_folder : :od_client_write_permission_missing
+                  ->(error) do
+                    code = error.code == :conflict ? :od_existing_test_folder : :od_client_write_permission_missing
                     fail_check(:client_folder_creation, code, context: { folder_name: TEST_FOLDER_NAME })
                   end
                 )
@@ -105,9 +105,9 @@ module Storages
             end
 
             def files_query
-              Input::Files.build(folder: "/").bind do
-                Registry["one_drive.queries.files"].call(storage: @storage, auth_strategy:, input_data: it)
-              end
+              Input::Files
+                .build(folder: "/")
+                .bind { Registry["one_drive.queries.files"].call(storage: @storage, auth_strategy:, input_data: it) }
             end
 
             def auth_strategy = Registry["one_drive.authentication.userless"].call

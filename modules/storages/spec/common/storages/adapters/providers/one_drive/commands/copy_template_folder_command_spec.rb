@@ -154,9 +154,9 @@ module Storages
             end
 
             def delete_template_folder
-              Input::DeleteFolder.build(location: base_template_folder.id).bind do
-                Registry.resolve("one_drive.commands.delete_folder").call(storage:, auth_strategy:, input_data: it)
-              end
+              Input::DeleteFolder
+                .build(location: base_template_folder.id)
+                .bind { Registry.resolve("one_drive.commands.delete_folder").call(storage:, auth_strategy:, input_data: it) }
             end
 
             def existing_folder_tuples
@@ -177,9 +177,9 @@ module Storages
               match_data = extractor_regex.match(url)
               location = match_data[:item_id]
 
-              Input::DeleteFolder.build(location:).bind do
-                Registry.resolve("one_drive.commands.delete_folder").call(storage:, auth_strategy:, input_data: it)
-              end
+              Input::DeleteFolder
+                .build(location:)
+                .bind { Registry.resolve("one_drive.commands.delete_folder").call(storage:, auth_strategy:, input_data: it) }
             end
 
             def auth_strategy

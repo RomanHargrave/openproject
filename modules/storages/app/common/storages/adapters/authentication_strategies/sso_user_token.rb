@@ -40,11 +40,10 @@ module Storages
         def call(storage:, http_options: {}, &)
           result = OpenIDConnect::UserTokens::FetchService.new(user: @user).access_token_for(audience: storage.audience)
 
-          token = result.value_or do
-            log_message = "Failed to fetch access token for user #{@user}. Error: #{it.inspect}"
-            error(log_message)
+          token = result.value_or do |failure|
+            error("Failed to fetch access token for user #{@user}. Error: #{failure.inspect}")
 
-            return Failure(it.with(code: :unauthorized))
+            return Failure(failure.with(code: :unauthorized))
           end
 
           opts = http_options.deep_merge({ headers: { "Authorization" => "Bearer #{token}" } })

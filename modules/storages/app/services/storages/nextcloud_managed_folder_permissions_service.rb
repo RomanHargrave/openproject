@@ -150,9 +150,9 @@ module Storages
 
     def remote_group_users
       info "Retrieving users that are part of the #{group} group"
-      input_data = Adapters::Input::GroupUsers.build(group:).value_or do
-        return Failure(add_validation_error(it, options: { group: }))
-      end
+      input_data = Adapters::Input::GroupUsers
+                     .build(group:)
+                     .value_or { return Failure(add_validation_error(it, options: { group: })) }
 
       @commands[:group_users].call(auth_strategy:, input_data:).or do |error|
         Failure(add_error(:group_users, error, options: { group: group }))

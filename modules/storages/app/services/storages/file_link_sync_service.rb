@@ -54,10 +54,8 @@ module Storages
     def sync_storage_data(storage, file_links)
       info "Retrieving file link information from #{storage.name}"
 
-      input_data = Adapters::Input::FilesInfo.build(file_ids: file_links.map(&:origin_id)).value_or do
-        log_validation_error(it)
-        return add_validation_error(it)
-      end
+      input_data = Adapters::Input::FilesInfo.build(file_ids: file_links.map(&:origin_id))
+                                             .value_or { return add_validation_error(it) }
 
       infos = Adapters::Registry.resolve("#{storage}.queries.files_info")
                                 .call(storage:, auth_strategy: auth_strategy(storage), input_data:)

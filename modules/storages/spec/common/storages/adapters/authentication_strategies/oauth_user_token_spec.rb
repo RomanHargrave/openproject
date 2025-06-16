@@ -46,7 +46,7 @@ module Storages
         subject(:Authentication) { described_class }
 
         shared_examples_for "successful response" do |refreshed: false|
-          it "must #{refreshed ? 'refresh token and ' : ''}return success" do
+          it "must #{'refresh token and ' if refreshed}return success" do
             result = Authentication[strategy_data].call(storage:) { |http| make_request(http) }
             expect(result).to be_success
             expect(result.value!).to eq("EXPECTED_RESULT")

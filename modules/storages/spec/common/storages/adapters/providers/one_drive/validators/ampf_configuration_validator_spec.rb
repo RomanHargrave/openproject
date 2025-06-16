@@ -109,8 +109,8 @@ module Storages
 
             def created_folder
               Input::Files.build(folder: "/").bind do |input_data|
-                Registry["one_drive.queries.files"].call(storage:, auth_strategy:, input_data:).bind do
-                  folder = it.all_folders.detect { |file| file.name.include?(folder_name) }
+                Registry["one_drive.queries.files"].call(storage:, auth_strategy:, input_data:).bind do |result|
+                  folder = result.all_folders.detect { |file| file.name.include?(folder_name) }
 
                   return folder.id
                 end

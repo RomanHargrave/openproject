@@ -38,16 +38,10 @@ module Storages
       auth_strategy = Adapters::Registry.resolve("#{storage}.authentication.user_bound").call(user, storage)
 
       info "Requesting file #{file_id} information on #{storage.name}"
-      input_data = Adapters::Input::FileInfo.build(file_id:).value_or do
-        add_validation_error(it)
-        return @result
-      end
+      input_data = Adapters::Input::FileInfo.build(file_id:).value_or { return add_validation_error(it) }
 
       file_info = Adapters::Registry.resolve("#{storage}.queries.file_info").call(storage:, auth_strategy:, input_data:)
-                                    .value_or do
-        add_error(:base, it, options: { file_id: })
-        return @result
-      end
+                                    .value_or { return add_error(:base, it, options: { file_id: }) }
 
       @result.result = file_info
       @result

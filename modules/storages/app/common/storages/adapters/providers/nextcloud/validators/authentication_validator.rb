@@ -63,9 +63,9 @@ module Storages
             end
 
             def user_bound_request
-              Registry["nextcloud.queries.user"].call(storage: @storage, auth_strategy:).or do
-                fail_check(:user_bound_request, :"nc_oauth_request_#{it.code}")
-              end
+              Registry["nextcloud.queries.user"]
+                .call(storage: @storage, auth_strategy:)
+                .or { fail_check(:user_bound_request, :"nc_oauth_request_#{it.code}") }
 
               pass_check(:user_bound_request)
             end

@@ -183,9 +183,9 @@ module Storages
       storage.project_storages.each do |project_storage|
         Adapters::Input::CreateFolder
           .build(folder_name: project_storage.managed_project_folder_path, parent_location: "/").bind do |input_data|
-          Adapters::Registry["nextcloud.commands.create_folder"].call(storage:, auth_strategy:, input_data:).bind do
-            project_storage.update(project_folder_id: it.id)
-          end
+          Adapters::Registry["nextcloud.commands.create_folder"]
+            .call(storage:, auth_strategy:, input_data:)
+            .bind { project_storage.update(project_folder_id: it.id) }
         end
       end
     end

@@ -117,10 +117,9 @@ module Storages
     end
 
     def create_remote_folder(folder_name, project_storage_id)
-      input_data = Adapters::Input::CreateFolder.build(folder_name:, parent_location: "/").value_or do
-        log_validation_error(it, folder_name: folder_name, parent_location: "/")
-        return Failure()
-      end
+      input_data = Adapters::Input::CreateFolder
+                     .build(folder_name:, parent_location: "/")
+                     .value_or { return Failure(log_validation_error(it, folder_name: folder_name, parent_location: "/")) }
 
       folder_info = create_folder.call(auth_strategy:, input_data:).value_or do |error|
         add_error(:create_folder, error, options: { folder_name:, parent_location: "/" })

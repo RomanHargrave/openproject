@@ -78,13 +78,13 @@ module Storages
             end
 
             def files_request_failed_with_unknown_error
-              files.or do
-                if it.code == :error
+              files.or do |failure|
+                if failure.code == :error
                   error "Connection validation failed with unknown error:\n" \
                         "\tstorage: ##{@storage.id} #{@storage.name}\n" \
                         "\trequest: Group folder content\n" \
-                        "\tstatus: #{it}\n" \
-                        "\tresponse: #{it.payload}"
+                        "\tstatus: #{failure}\n" \
+                        "\tresponse: #{failure.payload}"
 
                   fail_check(:files_request, :unknown_error)
                 end
