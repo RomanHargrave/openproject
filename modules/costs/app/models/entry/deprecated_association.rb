@@ -36,7 +36,7 @@ module Entry::DeprecatedAssociation
   end
 
   def work_package
-    OpenProject::Deprecation.replaced(:work_package, :entity, caller_locations)
+    # OpenProject::Deprecation.replaced(:work_package, :entity, caller_locations)
 
     if entity_type == "WorkPackage"
       entity
@@ -44,7 +44,7 @@ module Entry::DeprecatedAssociation
   end
 
   def work_package_id
-    OpenProject::Deprecation.replaced(:work_package_id, :entity_id, caller_locations)
+    # OpenProject::Deprecation.replaced(:work_package_id, :entity_id, caller_locations)
 
     if entity_type == "WorkPackage"
       entity_id
@@ -52,12 +52,12 @@ module Entry::DeprecatedAssociation
   end
 
   def work_package=(value)
-    OpenProject::Deprecation.replaced(:work_package=, :entity=, caller_locations)
+    # OpenProject::Deprecation.replaced(:work_package=, :entity=, caller_locations)
     self.entity = value
   end
 
   def work_package_id=(value)
-    OpenProject::Deprecation.replaced(:work_package_id=, :entity_id=, caller_locations)
+    # OpenProject::Deprecation.replaced(:work_package_id=, :entity_id=, caller_locations)
 
     self.entity_type = "WorkPackage"
     self.entity_id = value
