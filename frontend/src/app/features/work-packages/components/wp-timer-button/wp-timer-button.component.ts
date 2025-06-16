@@ -120,7 +120,7 @@ export class WorkPackageTimerButtonComponent extends UntilDestroyedMixin impleme
   }
 
   activeForWorkPackage(entry:TimeEntryResource | null):boolean {
-    return !!entry && entry.workPackage.href === this.workPackage.href;
+    return !!entry && entry.entity.href === this.workPackage.href;
   }
 
   clear():void {

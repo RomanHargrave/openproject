@@ -55,7 +55,7 @@ RSpec.describe "Work Package timer", :js, :selenium do
       active_time_entries = TimeEntry.where(ongoing: true, user:)
       expect(active_time_entries.count).to eq 1
       timer_entry = active_time_entries.first
-      expect(timer_entry.work_package).to eq work_package_a
+      expect(timer_entry.entity).to eq work_package_a
       expect(timer_entry.hours).to be_nil
 
       page.find(".op-top-menu-user").click
@@ -97,7 +97,7 @@ RSpec.describe "Work Package timer", :js, :selenium do
       active_time_entries = TimeEntry.where(ongoing: true, user:)
       expect(active_time_entries.count).to eq 1
       timer_entry = active_time_entries.first
-      expect(timer_entry.work_package).to eq work_package_a
+      expect(timer_entry.entity).to eq work_package_a
       expect(timer_entry.hours).to be_nil
 
       page.within(".spot-modal") { click_on "Stop current timer" }
@@ -122,7 +122,7 @@ RSpec.describe "Work Package timer", :js, :selenium do
       active_time_entries = TimeEntry.where(ongoing: true, user:)
       expect(active_time_entries.count).to eq 1
       timer_entry = active_time_entries.first
-      expect(timer_entry.work_package).to eq work_package_b
+      expect(timer_entry.entity).to eq work_package_b
       expect(timer_entry.hours).to be_nil
     end
   end

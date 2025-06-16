@@ -12,9 +12,9 @@
   <a
     class="op-timer-account-menu--wp-details"
     uiSref="work-packages.show"
-    [uiParams]="{ workPackageId: timer.workPackage.id }"
+    [uiParams]="{ workPackageId: timer.entity.id }"
   >
-    #{{ timer.workPackage.id }}:  {{ timer.workPackage.name }}
+    #{{ timer.entity.id }}:  {{ timer.entity.name }}
   </a>
   <div class="spot-divider"></div>
 </ng-container>
