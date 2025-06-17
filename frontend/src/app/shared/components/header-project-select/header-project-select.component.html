@@ -9,21 +9,18 @@
     id="projects-menu"
     accesskey="5"
     aria-haspopup="true"
-    class="op-menu--item op-project-select--trigger-button"
+    class="op-project-select--trigger-button"
     type="button"
     slot="trigger"
     (click)="toggleDropModal()"
     data-test-selector="op-projects-menu"
   >
     <span
-      class="op-menu--item-title">
-      <span
-        class="ellipsis"
-        [textContent]="currentProjectName()"
-        [attr.title]="currentProjectName()">
-      </span>
+      class="ellipsis"
+      [textContent]="currentProjectName()"
+      [attr.title]="currentProjectName()">
     </span>
-    <i class="op-menu--item-dropdown-indicator button--dropdown-indicator"></i>
+    <i class="button--dropdown-indicator"></i>
   </button>
 
   <ng-container slot="body">

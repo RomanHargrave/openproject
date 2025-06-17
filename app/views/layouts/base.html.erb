@@ -103,7 +103,7 @@ See COPYRIGHT and LICENSE files for more details.
         <h1 class="hidden-for-sighted"><%= t(:label_main_menu) %></h1>
         <opce-main-menu-resizer></opce-main-menu-resizer>
         <div id="menu-sidebar">
-          <%= render(Primer::OpenProject::FlexLayout.new(align_items: :center, mt: 2)) do |flex|
+          <%= render(Primer::OpenProject::FlexLayout.new(align_items: :center, mt: 3)) do |flex|
             flex.with_column(overflow: :hidden, ml: 2) do
               render_projects_top_menu_node
             end

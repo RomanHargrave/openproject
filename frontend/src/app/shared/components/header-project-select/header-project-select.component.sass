@@ -17,10 +17,17 @@
     color: var(--fgColor-muted, var(--color-fg-subtle))
 
   &--trigger-button
-    height: var(--main-menu-item-height)
+    display: flex
+    align-items: center
+    height: var(--control-medium-size)
     color: var(--main-menu-font-color)
-    border: 1px solid transparent
+    font-weight: var(--base-text-weight-semibold)
     padding: 0 8px
+    border: 1px solid transparent
     border-radius: var(--borderRadius-medium)
     background-color: transparent
     width: 100%
+
+    .button--dropdown-indicator
+      &:before
+        margin-left: var(--base-size-8)
