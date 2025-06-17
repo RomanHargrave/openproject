@@ -30,6 +30,10 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnIn
 import { ResizeDelta } from 'core-app/shared/components/resizer/resizer.component';
 import { UntilDestroyedMixin } from 'core-app/shared/helpers/angular/until-destroyed.mixin';
 import { MainMenuToggleService } from 'core-app/core/main-menu/main-menu-toggle.service';
+import {
+  debounceTime,
+  distinctUntilChanged,
+} from 'rxjs/operators';
 
 @Component({
   selector: 'opce-main-menu-resizer',
@@ -44,7 +48,7 @@ import { MainMenuToggleService } from 'core-app/core/main-menu/main-menu-toggle.
       <button
         class="spot-link main-menu--navigation-toggler"
         [attr.title]="toggleTitle"
-        [class.open]="toggleService.showNavigation"
+        [class.open]="isOpen"
         (click)="toggleService.toggleNavigation($event)"
       >
         <span class="resize-handle"><svg op-resizer-vertical-lines-icon size="small"></svg></span>
@@ -66,6 +70,8 @@ export class MainMenuResizerComponent extends UntilDestroyedMixin implements OnI
 
   public moving = false;
 
+  public isOpen:boolean;
+
   constructor(
     readonly toggleService:MainMenuToggleService,
     readonly cdRef:ChangeDetectorRef,
@@ -76,6 +82,20 @@ export class MainMenuResizerComponent extends UntilDestroyedMixin implements OnI
 
   ngOnInit() {
     this.resizeEvent = 'main-menu-resize';
+
+    this.isOpen = this.toggleService.showNavigation;
+
+    // Listen on sidebar changes and toggle resizer classes, if necessary
+    this.toggleService.changeData$
+      .pipe(
+        distinctUntilChanged(),
+        this.untilDestroyed(),
+        debounceTime(50),
+      )
+      .subscribe(() => {
+        this.isOpen = this.toggleService.showNavigation;
+        this.cdRef.detectChanges();
+      });
   }
 
   public resizeStart() {

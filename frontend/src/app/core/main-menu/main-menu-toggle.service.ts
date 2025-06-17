@@ -49,16 +49,14 @@ export class MainMenuToggleService {
 
   @InjectField() currentProject:CurrentProjectService;
 
-  private global = (window as any);
-
   private htmlNode = document.getElementsByTagName('html')[0];
 
   private mainMenu = jQuery('#main-menu')[0]; // main menu, containing sidebar and resizer
 
   // Notes all changes of the menu size (currently needed in wp-resizer.component.ts)
-  private changeData = new BehaviorSubject<any>({});
-
+  private changeData = new BehaviorSubject<number|undefined>(undefined);
   public changeData$ = this.changeData.asObservable();
+
   private wasHiddenDueToResize = false;
 
   private wasCollapsedByUser = false;
@@ -140,11 +138,13 @@ export class MainMenuToggleService {
 
   public closeMenu():void {
     this.setWidth(0);
+    this.changeData.next(0);
     jQuery('.searchable-menu--search-input').blur();
   }
 
   public openMenu():void {
     this.setWidth(this.defaultWidth);
+    this.changeData.next(this.defaultWidth);
   }
 
   public setWidth(width?:number):void {
