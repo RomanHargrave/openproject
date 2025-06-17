@@ -36,8 +36,9 @@ module OpenProject
       length: [:except, %w[list bool date user version link hierarchy]],
       multiSelect: [:only, %w[list user version hierarchy]],
       possibleValues: [:only, %w[list]],
-      regexp: [:except, %w[list bool date user version hierarchy]],
-      searchable: [:except, %w[bool date float int user version hierarchy]],
+      regexp: [:except, %w[list bool date user version hierarchy calculated_value]],
+      formula: [:only, %w[calculated_value]],
+      searchable: [:except, %w[bool date float int user version hierarchy calculated_value]],
       textOrientation: [:only, %w[text]],
       enterpriseBanner: [:only, %w[hierarchy]]
     }.freeze

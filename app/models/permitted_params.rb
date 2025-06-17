@@ -481,6 +481,7 @@ class PermittedParams
         custom_field: [
           :editable,
           :field_format,
+          :formula,
           :is_filter,
           :is_for_all,
           :is_required,

@@ -41,6 +41,7 @@ module CustomFields
     attribute :name
     attribute :possible_values
     attribute :regexp
+    attribute :formula
     attribute :searchable
     attribute :admin_only
     attribute :default_value

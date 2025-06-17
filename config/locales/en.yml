@@ -303,6 +303,7 @@ en:
       is_filter: >
         Allow the custom field to be used in a filter in work package views.
         Note that only with 'For all projects' selected, the custom field will show up in global views.
+      formula: "Add numeric values or type / to search for an attribute or a mathematical operator."
 
     tab:
       no_results_title_text: There are currently no custom fields.
@@ -977,6 +978,7 @@ en:
         default_value: "Default value"
         editable: "Editable"
         field_format: "Format"
+        formula: "Formula"
         is_filter: "Used as a filter"
         is_for_all: "For all projects"
         is_required: "Required"
@@ -2853,6 +2855,7 @@ en:
   label_follows: "follows"
   label_force_user_language_to_default: "Set language of users having a non allowed language to default"
   label_form_configuration: "Form configuration"
+  label_formula: "Formula"
   label_gantt_chart: "Gantt chart"
   label_gantt_chart_plural: "Gantt charts"
   label_general: "General"
