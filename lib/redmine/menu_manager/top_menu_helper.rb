@@ -38,11 +38,16 @@ module Redmine::MenuManager::TopMenuHelper
   end
 
   def top_menu_left_menu_items
-    [render_main_top_menu_nodes,
+    [render_logo,
+     render_main_top_menu_nodes,
      render_quick_add_menu]
   end
 
   def render_top_menu_center
+    nil
+  end
+
+  def render_logo
     content_tag :div, class: "op-logo" do
       mode_class = User.current.pref.high_contrast_theme? ? "op-logo--link_high_contrast" : ""
       link_to(I18n.t("label_home"),
