@@ -59,7 +59,7 @@ RSpec.describe CostQuery, :reporting_query_helper do
       query.row :user_id
 
       result = query.transformer.column_first.values.first
-      %i[tweek entity_type entity_id].each do |field|
+      %i[tweek entity_gid].each do |field|
         expect(result.fields).to include(field)
         result = result.values.first
       end

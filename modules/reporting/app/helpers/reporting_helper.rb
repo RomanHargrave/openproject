@@ -122,13 +122,13 @@ module ReportingHelper
     when :work_package_id
       link_to_work_package(WorkPackage.find(value.to_i))
     when :entity_gid
-      # TODO: All possible time entry associations need to be checked here
       entity = GlobalID::Locator.locate(value, only: TimeEntry::ALLOWED_ENTITY_TYPES.map(&:safe_constantize))
-      if entity.is_a?(WorkPacakge)
+
+      if entity.is_a?(::WorkPackage)
         link_to_work_package(entity)
-      else
-        # TODO proper other links
-        entity.inspect
+      elsif entity.is_a?(::Meeting)
+        # TODO: add a link
+        entity.title
       end
     when :entity_type
       # TODO: Skip for now

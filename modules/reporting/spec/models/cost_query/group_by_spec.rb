@@ -84,9 +84,8 @@ RSpec.describe CostQuery, :reporting_query_helper do
       query.group_by :work_package_id
       query.group_by :cost_type_id
       expect(query.all_group_fields).to eq(%w[entries.cost_type_id])
-      expect(query.child.all_group_fields).to eq(%w[entries.cost_type_id entries.entity_type entries.entity_id])
-      expect(query.child.child.all_group_fields).to eq(%w[entries.cost_type_id entries.entity_type entries.entity_id
-                                                          entries.project_id])
+      expect(query.child.all_group_fields).to eq(%w[entries.cost_type_id entries.entity_gid])
+      expect(query.child.child.all_group_fields).to eq(%w[entries.cost_type_id entries.entity_gid entries.project_id])
     end
 
     it "computes group_by WorkPackage" do
