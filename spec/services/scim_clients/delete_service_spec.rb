@@ -28,17 +28,31 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-class ScimClients::DeleteService < BaseServices::Delete
-  def before_perform(_, call)
-    # pre-loading service_account association before destroy to ensure it's available afterwards
-    call.result.service_account
-    call
+require "spec_helper"
+require "services/base_services/behaves_like_delete_service"
+
+RSpec.describe ScimClients::DeleteService, type: :model do
+  subject { instance.call }
+
+  let(:instance) { described_class.new(user:, model: scim_client) }
+  let(:user) { build_stubbed(:admin) }
+  let!(:scim_client) do
+    # loading the freshly created client from the database, so that associations are not preloaded
+    # (because this leads to different behaviour after destroy)
+    ScimClient.find(create(:scim_client, service_account:).id)
+  end
+  let(:service_account) { create(:service_account, authentication_provider: create(:oidc_provider)) }
+
+  it_behaves_like "BaseServices delete service" do
+    let(:model_instance) { scim_client }
   end
 
-  def after_perform(call)
-    client = call.result
-    client.service_account.update_column(:status, User.statuses[:locked])
-    client.service_account.user_auth_provider_links.delete_all
-    call
+  it "locks the service account" do
+    subject
+    expect(service_account.reload).to be_locked
+  end
+
+  it "deassociates the service account from its authentication provider" do
+    expect { subject }.to change(UserAuthProviderLink, :count).from(1).to(0)
   end
 end
