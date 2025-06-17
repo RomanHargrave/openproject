@@ -35,7 +35,7 @@ See COPYRIGHT and LICENSE files for more details.
 
 <% html_title (@query.persisted? ? "#{t(:label_cost_report)}: #{@query.name}" : t(:label_new_report)) %>
 
-<%= angular_component_tag "opce-reporting-page" %>
+<% content_controller "reporting--page" %>
 
 <%= render CostReports::IndexPageHeaderComponent.new(query: @query, project: @project) %>
 

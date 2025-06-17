@@ -47,6 +47,9 @@ class Widget::Filters < Widget::Base
         select_tag "add_filter_select",
                    options_for_select([["", ""]] + selectables),
                    class: "advanced-filters--select",
+                   data: {
+                     action: "reporting--page#addFilter"
+                   },
                    name: nil
       end
 
