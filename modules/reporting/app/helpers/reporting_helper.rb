@@ -122,7 +122,8 @@ module ReportingHelper
     when :work_package_id
       link_to_work_package(WorkPackage.find(value.to_i))
     when :entity_gid
-      entity = GlobalID::Locator.locate(value, only: TimeEntry::ALLOWED_ENTITY_TYPES.map(&:safe_constantize))
+      allowed_types = (TimeEntry::ALLOWED_ENTITY_TYPES | CostEntry::ALLOWED_ENTITY_TYPES).map(&:safe_constantize)
+      entity = GlobalID::Locator.locate(value, only: allowed_types)
 
       if entity.is_a?(::WorkPackage)
         link_to_work_package(entity)
