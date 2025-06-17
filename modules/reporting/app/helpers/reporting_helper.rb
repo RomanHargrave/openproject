@@ -192,7 +192,8 @@ module ReportingHelper
     return "" if value.blank?
 
     case key.to_sym
-    when :work_package_id, :entity_id, :tweek, :tmonth, :week then value.to_i
+    when :entity_id, :tweek, :tmonth, :week then value.to_i
+    when :entity_gid then GlobalID.new(value).model_id.to_i
     when :spent_on then value.to_date.mjd
     else strip_tags(field_representation_map(key, value))
     end
