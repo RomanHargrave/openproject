@@ -105,7 +105,7 @@ RSpec.describe "TimeEntry activity",
     within("li.op-activity-list--item", match: :first) do
       expect(page).to have_link("#{project.types.first} ##{work_package2.id}: #{work_package2.subject}")
       expect(page).to have_css("li", text: "Logged for #{user2.name}")
-      expect(page).to have_css("li", text: "Work package changed from #{work_package.name} to #{work_package2.name}")
+      expect(page).to have_css("li", text: "Entity changed from #{work_package.name} to #{work_package2.name}")
       expect(page).to have_css("li", text: "Spent time changed from 5 hours to 1 hour")
       expect(page).to have_css("li", text: "Comment changed from #{old_comments} to #{time_entry.comments}")
       expect(page).to have_css("li",

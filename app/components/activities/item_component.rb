@@ -141,15 +141,15 @@ class Activities::ItemComponent < ViewComponent::Base
     return if !details.key?("entity_id") && !details.key?("entity_type")
 
     details["entity_gid"] = [
-      build_gid(*type_and_id_for("entity", index: 0)),
-      build_gid(*type_and_id_for("entity", index: 1))
+      build_gid(*type_and_id_for(details, "entity", index: 0)),
+      build_gid(*type_and_id_for(details, "entity", index: 1))
     ]
 
     details.delete("entity_id")
     details.delete("entity_type")
   end
 
-  def type_and_id_for(field, index:)
+  def type_and_id_for(details, field, index:)
     [
       details["#{field}_type"]&.at(index) || @event.journal.journable.public_send("#{field}_type"),
       details["#{field}_id"]&.at(index) || @event.journal.journable.public_send("#{field}_id")
