@@ -99,7 +99,8 @@ class TimeEntry < ApplicationRecord
 
   register_journal_formatted_fields "hours", formatter_key: :time_entry_hours
   register_journal_formatted_fields "user_id", formatter_key: :time_entry_named_association
-  register_journal_formatted_fields "work_package_id", "activity_id", formatter_key: :named_association
+  register_journal_formatted_fields "activity_id", formatter_key: :named_association
+  register_journal_formatted_fields "entity_gid", formatter_key: :polymorphic_association
   register_journal_formatted_fields "comments", "spent_on", "start_time", formatter_key: :plaintext
 
   def self.update_all(updates, conditions = nil, options = {})

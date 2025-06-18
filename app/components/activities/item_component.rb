@@ -132,11 +132,36 @@ class Activities::ItemComponent < ViewComponent::Base
     remove_detail_when_changing_from_empty(details, "activity_id")
     remove_detail_when_changing_from_empty(details, "spent_on")
 
+    build_polymorphic_entity_gid_changeset(details)
+
     details
+  end
+
+  def build_polymorphic_entity_gid_changeset(details)
+    return if !details.key?("entity_id") && !details.key?("entity_type")
+
+    details["entity_gid"] = [
+      build_gid(*type_and_id_for("entity", index: 0)),
+      build_gid(*type_and_id_for("entity", index: 1))
+    ]
+
+    details.delete("entity_id")
+    details.delete("entity_type")
+  end
+
+  def type_and_id_for(field, index:)
+    [
+      details["#{field}_type"]&.at(index) || @event.journal.journable.public_send("#{field}_type"),
+      details["#{field}_id"]&.at(index) || @event.journal.journable.public_send("#{field}_id")
+    ]
   end
 
   def remove_detail_when_changing_from_empty(details, field)
     details.delete(field) if details[field] && details[field].first.nil?
+  end
+
+  def build_gid(entity_type, entity_id)
+    "gid://#{GlobalID.app}/#{entity_type}/#{entity_id}"
   end
 
   def render_event_details
