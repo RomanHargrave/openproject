@@ -44,15 +44,14 @@ class CostEntry < ApplicationRecord
 
   include ActiveModel::ForbiddenAttributesProtection
 
-  validates_presence_of :entity, :project_id, :user_id, :logged_by_id, :cost_type_id, :units, :spent_on
-  validates_numericality_of :units, allow_nil: false, message: :invalid
-  validates_length_of :comments, maximum: 255, allow_nil: true
-
-  before_save :before_save
-  before_validation :before_validation
   after_initialize :after_initialize
+  before_validation :before_validation
+  before_save :before_save
   validate :validate
 
+  validates :entity, :project_id, :user_id, :logged_by_id, :cost_type_id, :units, :spent_on, presence: true
+  validates :units, numericality: { allow_nil: false, message: :invalid }
+  validates :comments, length: { maximum: 255, allow_nil: true }
   validates :entity_type,
             inclusion: { in: ALLOWED_ENTITY_TYPES },
             allow_blank: true
@@ -79,7 +78,7 @@ class CostEntry < ApplicationRecord
     self.project = entity.project if entity && project.nil?
   end
 
-  def validate
+  def validate # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
     errors.add :units, :invalid if units&.negative?
     errors.add :project_id, :invalid if project.nil?
     errors.add :entity, :invalid if entity.nil? || (project != entity.project)
