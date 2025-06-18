@@ -36,6 +36,8 @@ module Admin::Settings
     include FlashMessagesOutputSafetyHelper
     include Admin::Settings::ProjectCustomFields::ComponentStreams
 
+    menu_item :project_custom_fields_settings
+
     def show
       # quick fixing redirect issue from perform_update
       # perform_update is always redirecting to the show action although configured otherwise
