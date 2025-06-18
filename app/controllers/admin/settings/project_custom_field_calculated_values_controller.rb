@@ -36,6 +36,8 @@ module Admin::Settings
     include FlashMessagesOutputSafetyHelper
     include Admin::Settings::ProjectCustomFields::ComponentStreams
 
+    before_action :check_feature_flag
+
     menu_item :project_custom_fields_settings
 
     def show
@@ -52,7 +54,13 @@ module Admin::Settings
     end
 
     def edit
-      @custom_field = ProjectCustomField.find(params[:id])
+      @custom_field = ProjectCustomField.find_by(id: params[:id], field_format: "calculated_value")
+    end
+
+    private
+
+    def check_feature_flag
+      render_404 unless OpenProject::FeatureDecisions.calculated_value_project_attribute_active?
     end
   end
 end
