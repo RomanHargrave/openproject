@@ -22,6 +22,8 @@ import {
   Observable,
 } from 'rxjs';
 import { TurboRequestsService } from 'core-app/core/turbo/turbo-requests.service';
+import { WorkPackageResource } from 'core-app/features/hal/resources/work-package-resource';
+import { MeetingResource } from 'core-app/features/hal/resources/meeting-resource';
 
 @Directive()
 export abstract class WidgetTimeEntriesListComponent extends AbstractWidgetComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -109,12 +111,12 @@ export abstract class WidgetTimeEntriesListComponent extends AbstractWidgetCompo
     return entry.project.name;
   }
 
-  public workPackageName(entry:TimeEntryResource):string {
-    return `#${entry.workPackage.id as string}: ${entry.workPackage.name}`;
+  public entityName(entry:TimeEntryResource):string {
+    return `#${entry.entity.id as string}: ${entry.entity.name}`;
   }
 
-  public workPackageId(entry:TimeEntryResource):string {
-    return entry.workPackage.id as string;
+  public entityId(entry:TimeEntryResource):string {
+    return entry.entity.id as string;
   }
 
   public comment(entry:TimeEntryResource):string | undefined {
@@ -125,8 +127,14 @@ export abstract class WidgetTimeEntriesListComponent extends AbstractWidgetCompo
     return this.formatNumber(this.timezone.toHours(entry.hours));
   }
 
-  public workPackagePath(entry:TimeEntryResource):string {
-    return this.pathHelper.workPackagePath(idFromLink(entry.workPackage.href));
+  public entityPath(entry:TimeEntryResource):string {
+    if (entry.entity instanceof WorkPackageResource) {
+      return this.pathHelper.workPackagePath(idFromLink(entry.entity.href));
+    } if (entry.entity instanceof MeetingResource) {
+      return this.pathHelper.meetingPath(idFromLink(entry.entity.href));
+    }
+
+    return '';
   }
 
   public get isEditable():boolean {

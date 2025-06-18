@@ -73,10 +73,7 @@ RSpec.describe "Time entries widget on dashboard", :js do
     create(:user)
   end
   let(:user) do
-    create(:user).tap do |u|
-      create(:member, project:, roles: [role], user: u)
-      create(:member, project: other_project, roles: [role], user: u)
-    end
+    create(:user, member_with_roles: { project => role, other_project => role })
   end
 
   let(:time_logging_modal) { Components::TimeLoggingModal.new }

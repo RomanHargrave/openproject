@@ -38,7 +38,7 @@
           <th>
             <div class="generic-table--sort-header-outer">
               <div class="generic-table--sort-header">
-                <span [textContent]="schema.workPackage.name"></span>
+                <span [textContent]="schema.entity.name"></span>
               </div>
             </div>
           </th>
@@ -70,11 +70,11 @@
             <strong [textContent]="item.date"></strong>
           </td>
           <td class="subject"
-              *ngIf="item.entry && item.entry.workPackage">
-              {{projectName(item.entry)}} - <a [href]="workPackagePath(item.entry)" [textContent]="workPackageName(item.entry)"></a>
+              *ngIf="item.entry && item.entry.entity">
+              {{projectName(item.entry)}} - <a [href]="entityPath(item.entry)" [textContent]="entityName(item.entry)"></a>
           </td>
           <td class="subject"
-              *ngIf="item.entry && !item.entry.workPackage"
+              *ngIf="item.entry && !item.entry.entity"
               [textContent]="projectName(item.entry)">
           </td>
           <td class="comments"
