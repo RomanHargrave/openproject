@@ -125,17 +125,17 @@ class Activities::ItemComponent < ViewComponent::Base
     details = @event.journal.details
 
     details.delete(:user_id) if details[:logged_by_id] == details[:user_id]
-    delete_detail(details, :work_package_id)
-    delete_detail(details, :entity_type)
-    delete_detail(details, :entity_id)
-    delete_detail(details, :comments)
-    delete_detail(details, :activity_id)
-    delete_detail(details, :spent_on)
+    remove_detail_when_changing_from_empty(details, "work_package_id")
+    remove_detail_when_changing_from_empty(details, "entity_type")
+    remove_detail_when_changing_from_empty(details, "entity_id")
+    remove_detail_when_changing_from_empty(details, "comments")
+    remove_detail_when_changing_from_empty(details, "activity_id")
+    remove_detail_when_changing_from_empty(details, "spent_on")
 
     details
   end
 
-  def delete_detail(details, field)
+  def remove_detail_when_changing_from_empty(details, field)
     details.delete(field) if details[field] && details[field].first.nil?
   end
 
