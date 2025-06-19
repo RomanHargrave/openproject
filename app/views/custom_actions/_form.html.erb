@@ -85,6 +85,7 @@
                   <% selected = action.value_objects.map { |v| { id: v[:value], name: v[:label] } } %>
                   <%= angular_component_tag "opce-user-autocompleter",
                                             inputs: {
+                                              multiple: action.multi_value?,
                                               hideSelected: true,
                                               defaultData: false,
                                               placeholder: I18n.t(:label_user_search),
