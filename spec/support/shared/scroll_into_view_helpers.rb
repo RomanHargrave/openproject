@@ -34,7 +34,7 @@
 #   One of `:start`, `:center`, `:end`, or `:nearest`. Defaults to `:start`.
 # @param inline [Symbol] (optional) Defines horizontal alignment.
 #   One of `:start`, `:center`, `:end`, or `:nearest`. Defaults to `:nearest`..
-def scroll_to_element(element, block: :nearest, inline: :nearest)
+def scroll_to_element(element, block: :start, inline: :nearest)
   script = <<-JS
     arguments[0].scrollIntoView({block: "#{block}", inline: "#{inline}"});
   JS
@@ -45,9 +45,9 @@ def scroll_to_element(element, block: :nearest, inline: :nearest)
   end
 end
 
-def scroll_to_and_click(element)
+def scroll_to_and_click(element, block: :start, inline: :nearest)
   retry_block do
-    scroll_to_element(element)
+    scroll_to_element(element, block:, inline:)
     element.click
   end
 end

@@ -30,37 +30,11 @@
 #
 module OpenProject
   module Common
-    class MainMenuTogglerComponent < ApplicationComponent
-      def initialize(opened:)
-        super
+    class MainMenuToggleComponent < ApplicationComponent
+      def initialize(expanded:)
+        super()
 
-        @opened = opened
-      end
-
-      def icon
-        @opened ? "sidebar-expand" : :"sidebar-collapse"
-      end
-
-      def id
-        "menu-toggler--#{@opened ? 'opener' : 'closer'}"
-      end
-
-      def aria_label
-        @opened ? I18n.t("js.label_hide_project_menu") : I18n.t("js.label_expand_project_menu")
-      end
-
-      def scheme
-        :invisible
-      end
-
-      def size
-        @opened ? :medium : :small
-      end
-
-      def data
-        {
-          action: "click->menus--main-toggler#toggleNavigation"
-        }
+        @expanded = expanded
       end
 
       def call
@@ -70,6 +44,34 @@ module OpenProject
                                             scheme:,
                                             size:,
                                             data:))
+      end
+
+      private
+
+      def icon
+        @expanded ? "sidebar-expand" : :"sidebar-collapse"
+      end
+
+      def id
+        "menu-toggle--#{@expanded ? 'collapse-button' : 'expand-button'}"
+      end
+
+      def aria_label
+        @expanded ? I18n.t("js.label_hide_project_menu") : I18n.t("js.label_expand_project_menu")
+      end
+
+      def scheme
+        :invisible
+      end
+
+      def size
+        @expanded ? :medium : :small
+      end
+
+      def data
+        {
+          action: "click->menus--main-toggle#toggleNavigation"
+        }
       end
     end
   end

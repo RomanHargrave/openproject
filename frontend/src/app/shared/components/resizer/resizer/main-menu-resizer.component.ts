@@ -62,7 +62,7 @@ import {
 export class MainMenuResizerComponent extends UntilDestroyedMixin implements OnInit {
   public toggleTitle:string;
 
-  private resizeEvent:string;
+  private resizeEvent:string = 'main-menu-resize';
 
   private elementWidth:number;
 
@@ -81,8 +81,6 @@ export class MainMenuResizerComponent extends UntilDestroyedMixin implements OnI
   }
 
   ngOnInit() {
-    this.resizeEvent = 'main-menu-resize';
-
     this.isOpen = this.toggleService.showNavigation;
 
     // Listen on sidebar changes and toggle resizer classes, if necessary
