@@ -30,7 +30,6 @@
 
 class CustomField < ApplicationRecord
   include CustomField::OrderStatements
-  scope :required, -> { where(is_required: true) }
   has_many :custom_values, dependent: :delete_all
   # WARNING: the inverse_of option is also required in order
   # for the 'touch: true' option on the custom_field association in CustomOption
@@ -49,6 +48,15 @@ class CustomField < ApplicationRecord
           inverse_of: "custom_field"
 
   scope :hierarchy_root_and_children, -> { includes(hierarchy_root: { children: :children }) }
+  scope :required, -> { where(is_required: true) }
+
+  default_scope -> {
+    if OpenProject::FeatureDecisions.calculated_value_project_attribute_active?
+      all
+    else
+      where.not(field_format: "calculated_value")
+    end
+  }
 
   acts_as_list scope: [:type]
 
