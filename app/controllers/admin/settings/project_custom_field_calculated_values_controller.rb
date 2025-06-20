@@ -32,7 +32,6 @@ module Admin::Settings
   class ProjectCustomFieldCalculatedValuesController < ::Admin::SettingsController
     include CustomFields::SharedActions
     include OpTurbo::ComponentStream
-    include OpTurbo::DialogStreamHelper
     include FlashMessagesOutputSafetyHelper
     include Admin::Settings::ProjectCustomFields::ComponentStreams
 
