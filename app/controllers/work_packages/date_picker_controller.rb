@@ -45,20 +45,9 @@ class WorkPackages::DatePickerController < ApplicationController
   def show
     set_date_attributes_to_work_package
 
-    respond_to do |format|
-      format.html do
-        render :show,
-               locals: { work_package:, schedule_manually:, focused_field:, params: params.merge(date_mode: date_mode).permit! },
-               layout: false
-      end
-
-      format.turbo_stream do
-        replace_via_turbo_stream(
-          component: datepicker_modal_component
-        )
-        render turbo_stream: turbo_streams
-      end
-    end
+    render :show,
+           locals: { work_package:, schedule_manually:, focused_field:, params: params.merge(date_mode: date_mode).permit! },
+           layout: false
   end
 
   def new
@@ -80,21 +69,8 @@ class WorkPackages::DatePickerController < ApplicationController
 
   def edit
     set_date_attributes_to_work_package
-
-    respond_to do |format|
-      format.turbo_stream do
-        replace_via_turbo_stream(
-          component: datepicker_modal_component
-        )
-        render turbo_stream: turbo_streams
-      end
-      # TODO: preserve context for selecting start and end date on the datepicker.
-      format.html do
-        render :show,
-               locals: { work_package:, schedule_manually:, focused_field:, params: params.merge(date_mode: date_mode).permit! },
-               layout: false
-      end
-    end
+    render :show,
+           locals: { work_package:, schedule_manually:, focused_field:, params: params.merge(date_mode: date_mode).permit! }
   end
 
   def create
@@ -104,17 +80,7 @@ class WorkPackages::DatePickerController < ApplicationController
     if service_call.errors
                    .map(&:attribute)
                    .intersect?(ERROR_PRONE_ATTRIBUTES)
-      respond_to do |format|
-        format.turbo_stream do
-          # Bundle 422 status code into stream response so
-          # Angular has context as to the success or failure of
-          # the request in order to fetch the new set of Work Package
-          # attributes in the ancestry solely on success.
-          render turbo_stream: [
-            turbo_stream.morph("wp-datepicker-dialog--content", datepicker_modal_component)
-          ], status: :unprocessable_entity
-        end
-      end
+      render datepicker_modal_component, status: :unprocessable_entity
     else
       render json: {
         startDate: @work_package.start_date,
