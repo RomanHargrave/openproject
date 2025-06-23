@@ -204,6 +204,8 @@ RSpec.describe WorkPackages::DatePickerController do
         )
       end
 
+      render_views
+
       it "includes the live region turbo-stream with the correct message and attributes" do
         get("new", params: params_after_changing_start_date)
 
