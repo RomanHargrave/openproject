@@ -10,7 +10,7 @@ module OpenProject::Webhooks::EventResources
       end
 
       def available_actions
-        %i(updated created)
+        %i(updated created comment internal_comment)
       end
 
       def resource_name
@@ -20,13 +20,29 @@ module OpenProject::Webhooks::EventResources
       protected
 
       def handle_notification(payload, event_name)
-        action = payload[:journal].initial? ? "created" : "updated"
-        event_name = prefixed_event_name(action)
-        work_package = payload[:journal].journable
-        active_webhooks.with_event_name(event_name).pluck(:id).each do |id|
-          WorkPackageWebhookJob.perform_later(id, work_package, event_name)
+        journal = payload[:journal]
+        action = 'created'
+        unless journal.initial?
+          if journal.note.present?
+            if journal.internal
+              action = 'internal_comment'
+            else
+              action = 'comment'
+            end
+          else
+            action = 'updated'
+          end
         end
-      end
+        event_name = prefixed_event_name(action)
+        work_package = journal.journable
+        active_webhooks.with_event_name(event_name).pluck(:id).each do |id|
+          if %w[created updated].include? action
+              WorkPackageWebhookJob.perform_later(id, work_package, event_name)
+            elsif %w[comment internal_comment].include? action
+              WorkPackageCommentWebhookJob.perform_later(id, journal, event_name)
+            end
+          end
+        end
     end
   end
 end

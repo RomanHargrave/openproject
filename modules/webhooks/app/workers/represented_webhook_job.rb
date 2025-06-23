@@ -47,8 +47,12 @@ class RepresentedWebhookJob < WebhookJob
       .call!(body:, headers:)
   end
 
+  def project_id
+    resource.project_id
+  end
+
   def accepted_in_project?
-    webhook.enabled_for_project?(resource.project_id)
+    webhook.enabled_for_project?(project_id)
   end
 
   def request_signature(request_body)
