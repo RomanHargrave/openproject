@@ -141,10 +141,18 @@ class CustomField < ApplicationRecord
   def validate_formula
     return unless field_format_calculated_value?
 
-    # TODO: add meaningful validation
-    if formula_string == "foo"
-      errors.add(:formula, :invalid)
-    end
+    # List of allowed characters in a formula. This only performs a very basic validation.
+    # Allowed characters are:
+    # + - / * ( ) whitespace digits and decimal points
+    # Additionally, the formula may contain references to custom fields in the form of `cf_123` where 123 is the ID of
+    # the custom field.
+    # Once this basic validation passes, the formula will be parsed and validated by Dentaku, which builds an AST
+    # and ensures that the formula is really valid. A welcome side-effect of the basic validation done here is that
+    # it prevents built-in functions from being used in the formula, which we do not want to allow.
+    common_chars = '[\+\-\/\*\(\)\s\d\.]'
+    pattern = /\A#{common_chars}+(?:cf_\d+#{common_chars}*)*\z/
+
+    errors.add(:formula, :invalid) unless formula_string.match?(pattern)
   end
 
   def has_regexp?
