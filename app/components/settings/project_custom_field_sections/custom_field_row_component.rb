@@ -43,11 +43,7 @@ module Settings
       private
 
       def edit_path
-        if @project_custom_field.field_format_calculated_value?
-          edit_admin_settings_project_custom_field_calculated_value_path(@project_custom_field)
-        else
-          edit_admin_settings_project_custom_field_path(@project_custom_field)
-        end
+        edit_admin_settings_project_custom_field_path(@project_custom_field)
       end
 
       def edit_action_item(menu)

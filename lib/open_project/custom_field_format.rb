@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #-- copyright
 # OpenProject is an open source project management software.
 # Copyright (C) the OpenProject GmbH
@@ -72,26 +74,24 @@ module OpenProject
       end
 
       def available
-        registered
-          .select { |_, format| !format.enterprise_feature || EnterpriseToken.allows_to?(format.enterprise_feature) }
+        formats = registered.select do |_, format|
+          !format.enterprise_feature || EnterpriseToken.allows_to?(format.enterprise_feature)
+        end
+
+        if OpenProject::FeatureDecisions.calculated_value_project_attribute_active?
+          formats
+        else
+          formats.except("calculated_value")
+        end
       end
 
       def available_formats
         available.keys
       end
 
-      # TODO: Consider changing the initializer order and moving this to the CustomFieldFormat initializer instead
-      def ensure_calculated_value_if_active!
-        if OpenProject::FeatureDecisions.calculated_value_project_attribute_active? && !@@available.key?("calculated_value")
-          order_of_last_entry = @@available.values.last.order
-          register OpenProject::CustomFieldFormat.new("calculated_value",
-                                                      label: :label_calculated_value,
-                                                      only: %w(Project),
-                                                      order: order_of_last_entry + 1)
-        end
-      end
-
       def find_by(name:)
+        return nil if name.to_s == "calculated_value" && !OpenProject::FeatureDecisions.calculated_value_project_attribute_active?
+
         registered[name.to_s]
       end
 
