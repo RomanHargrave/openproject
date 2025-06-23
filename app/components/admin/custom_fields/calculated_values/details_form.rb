@@ -49,6 +49,7 @@ module Admin::CustomFields::CalculatedValues
 
       details_form.text_field(
         name: :formula,
+        value: model.formula_string,
         label: I18n.t(:label_formula),
         required: true,
         caption: I18n.t("custom_fields.instructions.formula")

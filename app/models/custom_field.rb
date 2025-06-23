@@ -80,6 +80,7 @@ class CustomField < ApplicationRecord
 
   validate :validate_default_value
   validate :validate_regex
+  validate :validate_formula
 
   validates :min_length, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :max_length, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
@@ -135,6 +136,15 @@ class CustomField < ApplicationRecord
     true
   rescue RegexpError
     errors.add(:regexp, :invalid)
+  end
+
+  def validate_formula
+    return unless field_format_calculated_value?
+
+    # TODO: add meaningful validation
+    if formula_string == "foo"
+      errors.add(:formula, :invalid)
+    end
   end
 
   def has_regexp?
@@ -309,6 +319,19 @@ class CustomField < ApplicationRecord
 
   def field_format_calculated_value?
     field_format == "calculated_value"
+  end
+
+  def formula=(value)
+    if value.is_a?(String)
+      # TODO perform string parsing here
+      super({ formula: value })
+    else
+      super
+    end
+  end
+
+  def formula_string
+    formula.is_a?(Hash) ? formula["formula"] : formula
   end
 
   def multi_value_possible?
