@@ -147,12 +147,19 @@ class CustomField < ApplicationRecord
     # Additionally, the formula may contain references to custom fields in the form of `cf_123` where 123 is the ID of
     # the custom field.
     # Once this basic validation passes, the formula will be parsed and validated by Dentaku, which builds an AST
-    # and ensures that the formula is really valid. A welcome side-effect of the basic validation done here is that
+    # and ensures that the formula is really valid. A welcome side effect of the basic validation done here is that
     # it prevents built-in functions from being used in the formula, which we do not want to allow.
     common_chars = '[\+\-\/\*\(\)\s\d\.]'
     pattern = /\A#{common_chars}+(?:cf_\d+#{common_chars}*)*\z/
 
     errors.add(:formula, :invalid) unless formula_string.match?(pattern)
+
+    # TODO: check for valid (i.e. visible & enabled) custom field references (see #cf_ids_used_in_formula)
+
+    # Dentaku will return nil if the formula is invalid.
+    # TODO: add support for referenced custom fields by injecting them as variables,
+    #       e.g. Dentaku(formula_string, cf_123: CustomField.find(123).value)
+    errors.add(:formula, :invalid) unless Dentaku(formula_string)
   end
 
   def has_regexp?
@@ -331,8 +338,7 @@ class CustomField < ApplicationRecord
 
   def formula=(value)
     if value.is_a?(String)
-      # TODO perform string parsing here
-      super({ formula: value })
+      super({ formula: value, referenced_custom_fields: cf_ids_used_in_formula })
     else
       super
     end
@@ -360,6 +366,12 @@ class CustomField < ApplicationRecord
   end
 
   private
+
+  # Returns a list of custom field IDs used in the formula.
+  # For a formula like `2 + cf_12 + cf_4` it returns `[12, 4]`.
+  def cf_ids_used_in_formula
+    (formula_string || "").scan(/cf_(\d+)/).flatten.map(&:to_i)
+  end
 
   def possible_versions(obj, options: {})
     project = deduce_project(obj)

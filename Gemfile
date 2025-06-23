@@ -390,6 +390,9 @@ gem "googleauth", require: false
 # Required for contracts
 gem "disposable", "~> 0.6.2"
 
+# Used for formula evaluation of calculated values
+gem "dentaku", "~> 3.5"
+
 platforms :mri, :mingw, :x64_mingw do
   group :postgres do
     gem "pg", "~> 1.5.0"
