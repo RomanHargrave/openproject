@@ -188,12 +188,9 @@ RSpec.configure do |config|
 
     class FogAttachment < Attachment
       # Remounting the uploader overrides the original file setter taking care of setting,
-      # among other things, the content type. So we have to restore that original
-      # method this way.
+      # among other things, the content type.
       # We do this in a new, separate class, as to not interfere with any other specs.
-      alias_method :set_file, :file=
       mount_uploader :file, FogFileUploader
-      alias_method :file=, :set_file
     end
   end
 
