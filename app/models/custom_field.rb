@@ -149,10 +149,14 @@ class CustomField < ApplicationRecord
     # Once this basic validation passes, the formula will be parsed and validated by Dentaku, which builds an AST
     # and ensures that the formula is really valid. A welcome side effect of the basic validation done here is that
     # it prevents built-in functions from being used in the formula, which we do not want to allow.
-    common_chars = '[\+\-\/\*\(\)\s\d\.]'
-    pattern = /\A#{common_chars}+(?:cf_\d+#{common_chars}*)*\z/
+    allowed_chars = %w[+ - / * ( )] + [" "]
+    split_pattern = /\s|(\+)|(-)|(\*)|(\()|(\))/
+    pattern = /^(cf_\d+|\d+\.?\d*|\.\d+.|[#{allowed_chars.join}]+)$/
+    valid_formula_string = formula_string.split(split_pattern).reject(&:empty?).all? do |token|
+      token.match?(pattern)
+    end
 
-    errors.add(:formula, :invalid) unless formula_string.match?(pattern)
+    errors.add(:formula, :invalid) unless valid_formula_string
 
     # TODO: check for valid (i.e. visible & enabled) custom field references (see #cf_ids_used_in_formula)
 
