@@ -5,8 +5,10 @@
         work_package:,
         schedule_manually:,
         focused_field:,
-        triggering_field: params[:field]&.underscore&.to_sym,
-        date_mode: params[:date_mode]
+        triggering_field: params[:triggering_field] || params[:field]&.underscore&.to_sym,
+        touched_field_map:,
+        date_mode:,
+        live_region_message:
       )
     )
   end

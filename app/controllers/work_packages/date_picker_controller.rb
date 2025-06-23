@@ -44,33 +44,18 @@ class WorkPackages::DatePickerController < ApplicationController
 
   def show
     set_date_attributes_to_work_package
-
-    render :show,
-           locals: { work_package:, schedule_manually:, focused_field:, params: params.merge(date_mode: date_mode).permit! },
-           layout: false
+    render_form
   end
 
   def new
     make_fake_initial_work_package
     set_date_attributes_to_work_package
-
-    respond_to do |format|
-      format.turbo_stream do
-        replace_via_turbo_stream(
-          component: datepicker_modal_component
-        )
-        render turbo_stream: turbo_streams
-      end
-      format.html do
-        render datepicker_modal_component, status: :ok
-      end
-    end
+    render_form
   end
 
   def edit
     set_date_attributes_to_work_package
-    render :show,
-           locals: { work_package:, schedule_manually:, focused_field:, params: params.merge(date_mode: date_mode).permit! }
+    render_form
   end
 
   def create
@@ -80,7 +65,7 @@ class WorkPackages::DatePickerController < ApplicationController
     if service_call.errors
                    .map(&:attribute)
                    .intersect?(ERROR_PRONE_ATTRIBUTES)
-      render datepicker_modal_component, status: :unprocessable_entity
+      render_form(status: :unprocessable_entity)
     else
       render json: {
         startDate: @work_package.start_date,
@@ -105,30 +90,27 @@ class WorkPackages::DatePickerController < ApplicationController
                           model: @work_package)
                      .call(wp_params)
 
-    unless service_call.success?
-      update_via_turbo_stream(
-        component: datepicker_modal_component,
-        method: "morph"
-      )
+    if service_call.success?
+      head :ok
+    else
+      render_form(status: :unprocessable_entity)
     end
-
-    # Bundle 422 status code into stream response so
-    # Angular has context as to the success or failure of
-    # the request in order to fetch the new set of Work Package
-    # attributes in the ancestry solely on success.
-    respond_to_with_turbo_streams(status: service_call.success? ? :ok : :unprocessable_entity)
   end
 
   private
 
-  def datepicker_modal_component
-    WorkPackages::DatePicker::DialogContentComponent.new(work_package: @work_package,
-                                                         schedule_manually:,
-                                                         focused_field:,
-                                                         triggering_field: params[:triggering_field],
-                                                         touched_field_map:,
-                                                         date_mode:,
-                                                         live_region_message:)
+  def render_form(status: :ok)
+    render :show,
+           locals: {
+             work_package:,
+             schedule_manually:,
+             focused_field:,
+             touched_field_map:,
+             date_mode:,
+             live_region_message:
+           },
+           status:,
+           layout: false
   end
 
   def live_region_message

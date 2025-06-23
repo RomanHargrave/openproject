@@ -217,7 +217,7 @@ module WorkPackages
       def single_date_field_button_link(focused_field)
         permitted_params = params.merge(date_mode: "range", focused_field:).permit!
 
-        if params[:action] == "new"
+        if params[:action].in?(["new", "create"])
           new_date_picker_path(permitted_params)
         else
           work_package_date_picker_path(permitted_params)
