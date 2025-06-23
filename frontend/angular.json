@@ -14,7 +14,7 @@
       "sourceRoot": "src",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser-esbuild",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
             "allowedCommonJsDependencies": [
               "dom-plane",
@@ -32,11 +32,10 @@
               "chartjs-plugin-datalabels"
             ],
             "preserveSymlinks": true,
-            "deployUrl": "/assets/frontend/",
             "outputPath": "../public/assets/frontend",
             "index": "src/index2.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "browser": "src/main.ts",
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "sass",
             "assets": [
