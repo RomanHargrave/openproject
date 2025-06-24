@@ -38,6 +38,11 @@ module Settings
 
         @project_custom_field_section = project_custom_field_section
         @project_custom_fields = project_custom_field_section.custom_fields
+
+        unless OpenProject::FeatureDecisions.calculated_value_project_attribute_active?
+          @project_custom_fields = @project_custom_fields.where.not(field_format: "calculated_value")
+        end
+
         @first_and_last = first_and_last
       end
 

@@ -210,6 +210,8 @@ module Admin::Settings
 
     def find_custom_field
       @custom_field = ProjectCustomField.find(params[:id])
+
+      render_404 if @custom_field.field_format_calculated_value? && !calculated_value_feature_flag?
     end
 
     def drop_success_streams(call)
@@ -221,6 +223,10 @@ module Admin::Settings
 
     def include_sub_projects?
       ActiveRecord::Type::Boolean.new.cast(params.to_unsafe_h[:project_custom_field_project_mapping][:include_sub_projects])
+    end
+
+    def calculated_value_feature_flag?
+      OpenProject::FeatureDecisions.calculated_value_project_attribute_active?
     end
   end
 end

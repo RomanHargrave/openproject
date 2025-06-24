@@ -52,14 +52,6 @@ class CustomField < ApplicationRecord
   scope :hierarchy_root_and_children, -> { includes(hierarchy_root: { children: :children }) }
   scope :required, -> { where(is_required: true) }
 
-  default_scope -> {
-    if OpenProject::FeatureDecisions.calculated_value_project_attribute_active?
-      all
-    else
-      where.not(field_format: "calculated_value")
-    end
-  }
-
   acts_as_list scope: [:type]
 
   validates :field_format, presence: true

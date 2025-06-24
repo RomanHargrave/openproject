@@ -40,12 +40,18 @@ class ProjectCustomField < CustomField
 
   class << self
     def visible(user = User.current, project: nil)
-      if user.admin?
-        all
-      elsif user.allowed_in_any_project?(:select_project_custom_fields) || user.allowed_globally?(:add_project)
-        where(admin_only: false)
+      cfs = if user.admin?
+              all
+            elsif user.allowed_in_any_project?(:select_project_custom_fields) || user.allowed_globally?(:add_project)
+              where(admin_only: false)
+            else
+              where(admin_only: false).where(mappings_with_view_project_attributes_permission(user, project).exists)
+            end
+
+      if OpenProject::FeatureDecisions.calculated_value_project_attribute_active?
+        cfs
       else
-        where(admin_only: false).where(mappings_with_view_project_attributes_permission(user, project).exists)
+        cfs.where.not(field_format: "calculated_value")
       end
     end
 
