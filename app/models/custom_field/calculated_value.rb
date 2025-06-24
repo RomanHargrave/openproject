@@ -44,6 +44,9 @@ module CustomField::CalculatedValue
     # TODO WP-64348: add support for referenced custom fields by injecting them as variables,
     #       e.g. Dentaku(formula_string, cf_123: CustomField.find(123).value)
     errors.add(:formula, :invalid) unless Dentaku(formula_string)
+
+    # TODO: consider differentiating between a formula that contains invalid characters, missing variables, invalid
+    #       syntax, or mathematical errors.
   end
 
   def formula=(value)
