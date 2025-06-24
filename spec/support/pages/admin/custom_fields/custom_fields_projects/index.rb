@@ -48,6 +48,26 @@ module Pages
 
             click_on type
           end
+
+          def expect_having_create_item(type)
+            wait_for_network_idle
+
+            click_button "Add"
+
+            click_button "Project attribute"
+
+            expect(page).to have_link(type)
+          end
+
+          def expect_not_having_create_item(type)
+            wait_for_network_idle
+
+            click_button "Add"
+
+            click_button "Project attribute"
+
+            expect(page).to have_no_link(type)
+          end
         end
       end
     end

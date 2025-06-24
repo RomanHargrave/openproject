@@ -90,8 +90,6 @@ module OpenProject
       end
 
       def find_by(name:)
-        return nil if name.to_s == "calculated_value" && !OpenProject::FeatureDecisions.calculated_value_project_attribute_active?
-
         registered[name.to_s]
       end
 
