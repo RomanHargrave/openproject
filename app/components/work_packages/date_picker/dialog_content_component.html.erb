@@ -1,6 +1,6 @@
 <live-region></live-region>
-<% if @live_region_message %>
-  <%= render OpTurbo::StreamComponent.new(action: :liveRegion, message: @live_region_message, politeness: "polite", delay: "500", target: nil) %>
+<% if live_region_message %>
+  <%= render OpTurbo::StreamComponent.new(action: :liveRegion, message: live_region_message, politeness: "polite", delay: "500", target: nil) %>
 <% end %>
 <%=
   component_wrapper(
