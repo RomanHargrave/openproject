@@ -72,7 +72,7 @@ module CustomField::CalculatedValue
     # it prevents built-in functions from being used in the formula, which we do not want to allow.
     allowed_chars = %w[+ - / * ( )] + [" "]
     split_pattern = /\s|(\+)|(-)|(\/)|(\*)|(\()|(\))/
-    allowed_tokens = /^(cf_\d+|\d+\.?\d*|\.\d+.|[#{allowed_chars.join}]+)$/
+    allowed_tokens = /^(cf_\d+|\d+\.?\d*|\.\d+|[#{allowed_chars.join}]+)$/
 
     formula_string.split(split_pattern).reject(&:empty?).all? do |token|
       token.match?(allowed_tokens)
