@@ -71,7 +71,7 @@ module Admin
         [{ href: admin_index_path, text: t(:label_administration) },
          { href: custom_fields_path, text: t(:label_custom_field_plural) },
          { href: custom_fields_path(tab: @custom_field.type), text: I18n.t(@custom_field.type_name) },
-         @custom_field.name]
+         @custom_field.attribute_in_database("name")]
       end
     end
   end
