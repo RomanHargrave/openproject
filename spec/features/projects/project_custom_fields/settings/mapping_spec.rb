@@ -142,7 +142,7 @@ RSpec.describe "Projects custom fields mapping via project settings", :js do
         end
         within_custom_field_container(string_project_custom_field) do
           expect(page).to have_content("String field")
-          expect_type("String")
+          expect_type("Text")
           expect_unchecked_state
         end
       end

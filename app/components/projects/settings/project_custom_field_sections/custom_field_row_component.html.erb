@@ -13,7 +13,7 @@
         end
         title_container.with_column(pt: 1, mr: 2, data: { test_selector: "custom-field-type" }) do
           render(Primer::Beta::Text.new(font_size: :small, color: :subtle)) do
-            t(@project_custom_field.field_format)
+            t("label_#{@project_custom_field.field_format}")
           end
         end
         if @project_custom_field.required?
