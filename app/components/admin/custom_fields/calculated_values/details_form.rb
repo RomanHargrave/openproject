@@ -31,6 +31,11 @@
 module Admin::CustomFields::CalculatedValues
   class DetailsForm < ApplicationForm
     form do |details_form|
+      if model.new_record?
+        details_form.hidden(name: :field_format)
+        details_form.hidden(name: :type, scope_name_to_model: false)
+      end
+
       details_form.text_field(
         name: :name,
         label: I18n.t(:label_name),
@@ -66,9 +71,6 @@ module Admin::CustomFields::CalculatedValues
         label: I18n.t("activerecord.attributes.custom_field.admin_only"),
         caption: I18n.t("custom_fields.instructions.admin_only")
       )
-
-      details_form.hidden(name: :field_format)
-      details_form.hidden(name: :type, scope_name_to_model: false)
 
       details_form.submit(name: :submit, label: I18n.t(:button_save), scheme: :default)
     end
