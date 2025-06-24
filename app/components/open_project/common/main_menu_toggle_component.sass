@@ -28,11 +28,7 @@
 
 #menu-toggle--expand-button
   position: absolute
-  top: 18px
   left: 11px
-
-  @media screen and (max-width: $breakpoint-sm)
-    top: 11px
 
 #menu-toggle--collapse-button
   margin-right: 5px
@@ -45,6 +41,8 @@
     // TODO: Add angular breadcrumb selector once it exists
     .PageHeader-contextBar
       margin-left: 30px
+  .PageHeader-contextBar
+    height: 28px // ToDo: Remove once moved to primer repo
 
   &:not(.hidden-navigation)
     #menu-toggle--expand-button
