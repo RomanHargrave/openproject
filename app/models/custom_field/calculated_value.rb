@@ -33,23 +33,10 @@
 module CustomField::CalculatedValue
   def validate_formula
     return unless field_format_calculated_value?
+    # An empty formula is okay.
+    return if formula_string.blank?
 
-    # List of allowed characters in a formula. This only performs a very basic validation.
-    # Allowed characters are:
-    # + - / * ( ) whitespace digits and decimal points
-    # Additionally, the formula may contain references to custom fields in the form of `cf_123` where 123 is the ID of
-    # the custom field.
-    # Once this basic validation passes, the formula will be parsed and validated by Dentaku, which builds an AST
-    # and ensures that the formula is really valid. A welcome side effect of the basic validation done here is that
-    # it prevents built-in functions from being used in the formula, which we do not want to allow.
-    allowed_chars = %w[+ - / * ( )] + [" "]
-    split_pattern = /\s|(\+)|(-)|(\*)|(\()|(\))/
-    pattern = /^(cf_\d+|\d+\.?\d*|\.\d+.|[#{allowed_chars.join}]+)$/
-    valid_formula_string = formula_string.split(split_pattern).reject(&:empty?).all? do |token|
-      token.match?(pattern)
-    end
-
-    errors.add(:formula, :invalid) unless valid_formula_string
+    errors.add(:formula, :invalid) unless formula_contains_only_allowed_characters?
 
     # WP-64348: check for valid (i.e., visible & enabled) custom field references (see #cf_ids_used_in_formula)
 
@@ -61,21 +48,40 @@ module CustomField::CalculatedValue
 
   def formula=(value)
     if value.is_a?(String)
-      super({ formula: value, referenced_custom_fields: cf_ids_used_in_formula })
+      super({ formula: value, referenced_custom_fields: cf_ids_used_in_formula(value) })
     else
       super
     end
   end
 
+  # Returns the formula as a string. Will return an empty string if the formula is not set.
   def formula_string
-    formula.is_a?(Hash) ? formula["formula"] : formula
+    formula.is_a?(Hash) ? formula.fetch("formula", "") : formula.to_s
   end
 
   private
 
+  def formula_contains_only_allowed_characters?
+    # List of allowed characters in a formula. This only performs a very basic validation.
+    # Allowed characters are:
+    # + - / * ( ) whitespace digits and decimal points
+    # Additionally, the formula may contain references to custom fields in the form of `cf_123` where 123 is the ID of
+    # the custom field.
+    # Once this basic validation passes, the formula will be parsed and validated by Dentaku, which builds an AST
+    # and ensures that the formula is really valid. A welcome side effect of the basic validation done here is that
+    # it prevents built-in functions from being used in the formula, which we do not want to allow.
+    allowed_chars = %w[+ - / * ( )] + [" "]
+    split_pattern = /\s|(\+)|(-)|(\/)|(\*)|(\()|(\))/
+    allowed_tokens = /^(cf_\d+|\d+\.?\d*|\.\d+.|[#{allowed_chars.join}]+)$/
+
+    formula_string.split(split_pattern).reject(&:empty?).all? do |token|
+      token.match?(allowed_tokens)
+    end
+  end
+
   # Returns a list of custom field IDs used in the formula.
   # For a formula like `2 + cf_12 + cf_4` it returns `[12, 4]`.
-  def cf_ids_used_in_formula
-    (formula_string || "").scan(/cf_(\d+)/).flatten.map(&:to_i)
+  def cf_ids_used_in_formula(formula_str = formula_string)
+    formula_str.scan(/cf_(\d+)/).flatten.map(&:to_i)
   end
 end

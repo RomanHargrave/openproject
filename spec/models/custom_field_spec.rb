@@ -485,6 +485,15 @@ RSpec.describe CustomField do
       end
     end
 
+    context "with a project calculated value cf" do
+      let(:field) { build_stubbed(:calculated_value_project_custom_field) }
+
+      it "is false" do
+        expect(field)
+          .not_to be_multi_value_possible
+      end
+    end
+
     context "with a time_entry user cf" do
       let(:field) { build_stubbed(:time_entry_custom_field, :user) }
 
