@@ -39,8 +39,9 @@ class Widget::Filters::Project < Widget::Filters::Base
                                   inputs: {
                                     filters: [],
                                     InputName: "values[#{filter_class.underscore_name}]",
+                                    hiddenFieldAction: "change->reporting--page#selectValueChanged",
                                     multiple: true,
-                                    model: selected_values.filter { |item| !item.nil? }
+                                    model: selected_values.compact
                                   },
                                   id: "#{filter_class.underscore_name}_select_1",
                                   class: "filter-value"

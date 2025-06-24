@@ -69,7 +69,14 @@ class Widget::GroupBys < Widget::Base
                             "#{I18n.t(:label_group_by_add)} #{I18n.t('js.filter.description.text_open_filter')}",
                             class: "hidden-for-sighted"
 
-          label += content_tag :select, id: "group-by--add-#{type}", class: "advanced-filters--select" do
+          label += content_tag(
+            :select,
+            id: "group-by--add-#{type}",
+            class: "advanced-filters--select",
+            data: {
+              action: "change->reporting--page#addGroupBy"
+            }
+          ) do
             content = content_tag :option, I18n.t(:label_group_by_add), value: "", disabled: true, selected: true
 
             sort_by_options = engine::GroupBy.all_grouped.sort_by do |i18n_key, _group_by_ary|
@@ -92,6 +99,7 @@ class Widget::GroupBys < Widget::Base
       legend + container
     end
   end
+
   # rubocop:enable Metrics/AbcSize
 
   def render

@@ -115,6 +115,76 @@ export default class PageController extends Controller {
     }
   }
 
+  removeFilter(evt:MouseEvent) {
+    evt.preventDefault();
+    const target = evt.target as HTMLElement;
+    const filterName = target.closest('li')?.getAttribute('data-filter-name');
+
+    if (filterName) {
+      this.filters.remove_filter(filterName);
+    }
+  }
+
+  filterKeydown(evt:KeyboardEvent) {
+    if (evt.key === 'Enter' || evt.key === ' ') {
+      evt.preventDefault();
+
+      const filter = (evt.target as HTMLElement).closest('li') as HTMLElement;
+      const filterName = filter.dataset.filterName;
+      const prevVisibleFilter = jQuery(filter)
+        .prevAll(':visible')
+        .last()
+        .find('.advanced-filters--select');
+
+      if (prevVisibleFilter.length > 0) {
+        prevVisibleFilter.focus();
+      } else {
+        jQuery('#filters > legend a')[0]?.focus();
+      }
+
+      if (filterName) {
+        this.filters.remove_filter(filterName);
+      }
+    }
+  }
+
+  onOperatorInput(evt:InputEvent) {
+    const target = evt.target as HTMLSelectElement;
+    const filterName = target.dataset.filterName;
+    if (filterName) {
+      this.filters.operator_changed(filterName, jQuery(target));
+      const argVal = jQuery(`#${filterName}_arg_1_val`)[0];
+      if (argVal) {
+        this.fireEvent(argVal, 'change');
+      }
+    }
+  }
+
+  toggleMultiSelect(evt:MouseEvent) {
+    const target = evt.currentTarget as HTMLElement;
+    const filterName = target.dataset.filterName;
+
+    if (filterName) {
+      this.filters.toggle_multi_select(jQuery(`#${filterName}_arg_1_val`));
+    }
+  }
+
+  selectValueChanged(evt:InputEvent) {
+    const select = evt.target as HTMLSelectElement;
+    const filterName = select.closest('li')?.getAttribute('data-filter-name');
+
+    if (filterName) {
+      this.filters.value_changed(filterName);
+    }
+  }
+
+  addGroupBy(evt:InputEvent) {
+    const target = evt.target as HTMLSelectElement;
+    if (!this.groupBys.exists(target.value)) {
+      this.groupBys.add_group_by_from_select(target);
+    }
+  }
+
   /**
    * Ported from legacy asset pipeline reporting
    */
@@ -247,54 +317,6 @@ export default class PageController extends Controller {
       },
     };
 
-    jQuery('.filter_rem')
-      .on('click', (event) => {
-        event.preventDefault();
-        const filterName = jQuery(event.target).closest('li').attr('data-filter-name');
-        if (filterName) {
-          this.filters.remove_filter(filterName);
-        }
-      })
-      .on('keydown', (event) => {
-        if (event.keyCode === 13 || event.keyCode === 32) {
-          event.preventDefault();
-          const filterName = jQuery(event.target).closest('li').attr('data-filter-name');
-          const prevVisibleFilter = jQuery(event.target).closest('li').prevAll(':visible').last()
-            .find('.advanced-filters--select');
-
-          if (prevVisibleFilter.length > 0) {
-            prevVisibleFilter.focus();
-          } else {
-            jQuery('#filters > legend a')[0]?.focus();
-          }
-          if (filterName) {
-            this.filters.remove_filter(filterName);
-          }
-        }
-      });
-
-    jQuery('.filter_operator')
-      .on('change', (evt) => {
-        const target = evt.target as HTMLSelectElement;
-        const filterName = jQuery(target).attr('data-filter-name');
-        if (filterName) {
-          this.filters.operator_changed(filterName, jQuery(target));
-          const argVal = jQuery(`#${filterName}_arg_1_val`)[0];
-          if (argVal) {
-            this.fireEvent(argVal, 'change');
-          }
-        }
-      });
-
-    jQuery('.filter_multi-select')
-      .on('click', (e) => {
-        const target = e.target;
-        const filterName = jQuery(target).attr('data-filter-name');
-        if (filterName) {
-          this.filters.toggle_multi_select(jQuery(`#${filterName}_arg_1_val`));
-        }
-      });
-
     jQuery('.advanced-filters--filter-value .filter-value').each((index, element) => {
       const select = jQuery(element);
       const selectValue = select.val();
@@ -303,13 +325,6 @@ export default class PageController extends Controller {
         const isMultiple = selectValue && Array.isArray(selectValue) && selectValue.length > 1;
         select.attr('multiple', isMultiple ? 'multiple' : null);
       }
-
-      select.on('change', (evt) => {
-        const filterName = jQuery(evt.target).closest('li').attr('data-filter-name');
-        if (filterName) {
-          this.filters.value_changed(filterName);
-        }
-      });
     });
   }
 
@@ -341,7 +356,7 @@ export default class PageController extends Controller {
         const tagName = select.prop('tagName') as string;
 
         select.html(xhr.responseText);
-        jQuery(`select[data-filter-name='${filterName}']`).removeProp('disabled');
+        jQuery(`select[data-filter-name='${filterName}']`).prop('disabled', false);
 
         if (tagName && tagName.toLowerCase() === 'select') {
           if (!postSelectValues || postSelectValues.length === 0) {
@@ -548,14 +563,6 @@ export default class PageController extends Controller {
 
     // Initialize drag and drop
     this.groupBys.initialize_drag_and_drop_areas();
-
-    // Bind group-by events
-    jQuery('#group-by--add-rows, #group-by--add-columns').on('change', (event) => {
-      const target = event.target as HTMLSelectElement;
-      if (!this.groupBys.exists(target.value)) {
-        this.groupBys.add_group_by_from_select(target);
-      }
-    });
   }
 
   private recreateSortables() {
@@ -595,7 +602,7 @@ export default class PageController extends Controller {
     });
 
     removeLink.on('keypress', (e) => {
-      if (e.keyCode === 32) {
+      if (e.key === ' ') {
         e.preventDefault();
         this.removeElementEventAction(groupBy, removeLink);
       }
@@ -663,7 +670,8 @@ export default class PageController extends Controller {
       },
 
       observe_click: (elementId:string, callback:(e:Event) => void) => {
-        jQuery(`#${elementId}`).on('click', callback);
+        const target = document.getElementById(elementId) as HTMLElement;
+        target?.addEventListener('click', callback);
       },
 
       update_result_table: (response:string) => {
@@ -723,7 +731,7 @@ export default class PageController extends Controller {
       this.defaultFailureCallback(response);
     };
 
-    element.on('click', (e:Event) => {
+    element[0].addEventListener('click', (e:Event) => {
       e.preventDefault();
       const target = jQuery(e.target as HTMLElement).closest('[data-target]').attr('data-target');
       this.sendSettingsData(target || '', callback, failureCallback);
