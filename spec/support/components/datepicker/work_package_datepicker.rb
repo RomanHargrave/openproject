@@ -104,6 +104,10 @@ module Components
       expect(container).to have_link("Start date")
     end
 
+    def expect_add_finish_date_button_visible
+      expect(container).to have_link("Finish date")
+    end
+
     def enable_due_date
       retry_block do
         page.find_test_selector("wp-datepicker--show-due-date").click
