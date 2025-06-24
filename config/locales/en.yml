@@ -3249,6 +3249,7 @@ en:
   label_work_package_attachments: "Work package attachments"
   label_work_package_category_new: "New category"
   label_work_package_category_plural: "Work package categories"
+  label_work_package_comments: "Work package comments"
   label_work_package_hierarchy: "Work package hierarchy"
   label_work_package_new: "New work package"
   label_work_package_edit: "Edit work package %{name}"

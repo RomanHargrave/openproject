@@ -28,18 +28,37 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-class WorkPackageCommentWebhookJob < RepresentedWebhookJob
-  def payload_key
-    :activity
-  end
+require_relative "base"
 
-  def payload_representer_class
-    ::API::V3::Activities::ActivityRepresenter
-  end
+module OpenProject::Webhooks::EventResources
+  class WorkPackageComment < Base
+    class << self
+      def notification_names
+        [
+          OpenProject::Events::AGGREGATED_WORK_PACKAGE_JOURNAL_READY
+        ]
+      end
 
-  def project_id
-    # For comment webhooks, the resource is a Journal
-    # We need to get the project_id through the journable (WorkPackage)
-    resource.journable.project_id
+      def available_actions
+        %i(comment internal_comment)
+      end
+
+      def resource_name
+        I18n.t :label_work_package_comments
+      end
+
+      protected
+
+      def handle_notification(payload, event_name)
+        journal = payload[:journal]
+        return if journal.notes.blank?
+
+        action = journal.internal? ? "internal_comment" : "comment"
+        event_name = prefixed_event_name(action)
+        active_webhooks.with_event_name(event_name).pluck(:id).each do |id|
+          WorkPackageCommentWebhookJob.perform_later(id, journal, event_name)
+        end
+      end
+    end
   end
 end
